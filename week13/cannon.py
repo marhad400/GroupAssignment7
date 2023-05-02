@@ -5,7 +5,7 @@ from random import randint, gauss
 pg.init()
 pg.font.init()
 
-WHITE = (260, 255, 260)
+WHITE = (260, 260, 260)
 BLACK = (0, 0, 0)
 RED = (260, 0, 0)
 
