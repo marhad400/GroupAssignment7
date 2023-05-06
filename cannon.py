@@ -1,19 +1,12 @@
 import numpy as np
 import pygame as pg
 from random import randint, gauss
+from color import Color
 
 pg.init()
 pg.font.init()
 
-WHITE = (260, 260, 260)
-BLACK = (0, 0, 0)
-RED = (260, 0, 0)
-
 SCREEN_SIZE = (800, 600)
-
-
-def rand_color():
-    return (randint(0, 255), randint(0, 255), randint(0, 255))
 
 class GameObject:
 
@@ -35,7 +28,7 @@ class Shell(GameObject):
         self.coord = coord
         self.vel = vel
         if color == None:
-            color = rand_color()
+            color = Color.rand_color()
         self.color = color
         self.rad = rad
         self.is_alive = True
@@ -77,7 +70,7 @@ class Cannon(GameObject):
     '''
     Cannon class. Manages it's renderring, movement and striking.
     '''
-    def __init__(self, coord=[30, SCREEN_SIZE[1]//2], angle=0, max_pow=50, min_pow=10, color=RED):
+    def __init__(self, coord=[30, SCREEN_SIZE[1]//2], angle=0, max_pow=50, min_pow=10, color=Color.RED):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
@@ -155,7 +148,7 @@ class Target(GameObject):
         self.rad = rad
 
         if color == None:
-            color = rand_color()
+            color = Color.rand_color()
         self.color = color
 
     def check_collision(self, ball):
@@ -207,9 +200,9 @@ class ScoreTable:
 
     def draw(self, screen):
         score_surf = []
-        score_surf.append(self.font.render("Destroyed: {}".format(self.t_destr), True, WHITE))
-        score_surf.append(self.font.render("Balls used: {}".format(self.b_used), True, WHITE))
-        score_surf.append(self.font.render("Total: {}".format(self.score()), True, RED))
+        score_surf.append(self.font.render("Destroyed: {}".format(self.t_destr), True, Color.WHITE))
+        score_surf.append(self.font.render("Balls used: {}".format(self.b_used), True, Color.WHITE))
+        score_surf.append(self.font.render("Total: {}".format(self.score()), True, Color.RED))
         for i in range(3):
             screen.blit(score_surf[i], [10, 10 + 30*i])
 
@@ -331,7 +324,7 @@ mgr = Manager(n_targets=3)
 
 while not done:
     clock.tick(15)
-    screen.fill(BLACK)
+    screen.fill(Color.BLACK)
 
     done = mgr.process(pg.event.get(), screen)
 
