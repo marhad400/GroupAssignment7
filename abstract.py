@@ -1,6 +1,7 @@
 class Drawable:
 
-    def __init__(self, color, size):
+    def __init__(self, x, y, color, size):
+        self.x, self.y = x, y
         self.color = color
         self.size = size
 
@@ -8,8 +9,7 @@ class Drawable:
 
 class Moveable:
 
-    def __init__(self, x, y, v_x, v_y):
-        self.x, self.y = x, y
+    def __init__(self, v_x, v_y):
         self.v_x, self.v_y = v_x, v_y
     
     def move(): pass
