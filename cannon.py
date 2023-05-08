@@ -3,6 +3,9 @@ import pygame as pg
 from random import randint, gauss
 from color import Color
 
+from inherited import Target, MovingTarget
+from targets import TargetMaster, MovingCircle, StaticCircle
+
 pg.init()
 pg.font.init()
 
@@ -133,56 +136,6 @@ class Cannon(GameObject):
         gun_shape.append((gun_pos - vec_1).tolist())
         pg.draw.polygon(screen, self.color, gun_shape)
 
-
-class Target(GameObject):
-    '''
-    Target class. Creates target, manages it's rendering and collision with a ball event.
-    '''
-    def __init__(self, coord=None, color=None, rad=30):
-        '''
-        Constructor method. Sets coordinate, color and radius of the target.
-        '''
-        if coord == None:
-            coord = [randint(rad, SCREEN_SIZE[0] - rad), randint(rad, SCREEN_SIZE[1] - rad)]
-        self.coord = coord
-        self.rad = rad
-
-        if color == None:
-            color = Color.rand_color()
-        self.color = color
-
-    def check_collision(self, ball):
-        '''
-        Checks whether the ball bumps into target.
-        '''
-        dist = sum([(self.coord[i] - ball.coord[i])**2 for i in range(2)])**0.5
-        min_dist = self.rad + ball.rad
-        return dist <= min_dist
-
-    def draw(self, screen):
-        '''
-        Draws the target on the screen
-        '''
-        pg.draw.circle(screen, self.color, self.coord, self.rad)
-
-    def move(self):
-        """
-        This type of target can't move at all.
-        :return: None
-        """
-        pass
-
-class MovingTargets(Target):
-    def __init__(self, coord=None, color=None, rad=30):
-        super().__init__(coord, color, rad)
-        self.vx = randint(-2, +2)
-        self.vy = randint(-2, +2)
-    
-    def move(self):
-        self.coord[0] += self.vx
-        self.coord[1] += self.vy
-
-
 class ScoreTable:
     '''
     Score table class.
@@ -214,7 +167,7 @@ class Manager:
     def __init__(self, n_targets=1):
         self.balls = []
         self.gun = Cannon()
-        self.targets = []
+        self.target_master = TargetMaster()
         self.score_t = ScoreTable()
         self.n_targets = n_targets
         self.new_mission()
@@ -224,10 +177,24 @@ class Manager:
         Adds new targets.
         '''
         for i in range(self.n_targets):
-            self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
-                30 - max(0, self.score_t.score()))))
-            self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
-                30 - max(0, self.score_t.score()))))
+            size=randint(
+                            max(1, 30 - 2*max(0, self.score_t.score())),
+                            30 - max(0, self.score_t.score())
+                        )
+            
+            m = MovingTarget(
+                        size=size,
+                        x = randint(size, SCREEN_SIZE[0] - size),
+                        y = randint(size, SCREEN_SIZE[1] - size)
+                    )
+            s = Target(
+                        size=size,
+                        x = randint(size, SCREEN_SIZE[0] - size),
+                        y = randint(size, SCREEN_SIZE[1] - size)
+                    )
+            
+            self.target_master.target_list.append(m)
+            self.target_master.target_list.append(s)
 
 
     def process(self, events, screen):
@@ -244,7 +211,7 @@ class Manager:
         self.collide()
         self.draw(screen)
 
-        if len(self.targets) == 0 and len(self.balls) == 0:
+        if len(self.target_master.target_list) == 0 and len(self.balls) == 0:
             self.new_mission()
 
         return done
@@ -277,8 +244,7 @@ class Manager:
         '''
         for ball in self.balls:
             ball.draw(screen)
-        for target in self.targets:
-            target.draw(screen)
+        self.target_master.draw_all(screen)
         self.gun.draw(screen)
         self.score_t.draw(screen)
 
@@ -293,8 +259,7 @@ class Manager:
                 dead_balls.append(i)
         for i in reversed(dead_balls):
             self.balls.pop(i)
-        for i, target in enumerate(self.targets):
-            target.move()
+        self.target_master.move_all()
         self.gun.gain()
 
     def collide(self):
@@ -304,14 +269,14 @@ class Manager:
         collisions = []
         targets_c = []
         for i, ball in enumerate(self.balls):
-            for j, target in enumerate(self.targets):
+            for j, target in enumerate(self.target_master.target_list):
                 if target.check_collision(ball):
                     collisions.append([i, j])
                     targets_c.append(j)
         targets_c.sort()
         for j in reversed(targets_c):
             self.score_t.t_destr += 1
-            self.targets.pop(j)
+            self.target_master.target_list.pop(j)
 
 
 screen = pg.display.set_mode(SCREEN_SIZE)
@@ -329,6 +294,5 @@ while not done:
     done = mgr.process(pg.event.get(), screen)
 
     pg.display.flip()
-
 
 pg.quit()

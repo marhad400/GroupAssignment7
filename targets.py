@@ -24,28 +24,26 @@ class TargetMaster:
 
         chosen_type: Drawable = None
         params: dict = {
-            'x': random.randint(1, 5) ,
+            'x': random.randint(1, 5),
             'y': random.randint(1, 5)
         }
         if is_moving:
             chosen_type = random.choice(moving_target_type)
-            params['v_x'] = random.randint(-2, 2)
-            params['v_y'] = random.randint(-2, 2)
         else:
             chosen_type = random.choice(static_target_type)
         
         created_target = chosen_type(**params)
         self.target_list.append(created_target)
-    
-    def draw_all(self):
-        [target.draw() for target in self.target_list]
+
+    def draw_all(self, surface):
+        [target.draw(surface) for target in self.target_list]
     
     def move_all(self):
         [target.move() for target in self.target_list if isinstance(target, MovingTarget)]
 
 class MovingSquare(MovingTarget):
     
-    def __init__(self, x, y, v_x, v_y, color=None, size=None, health=None):
+    def __init__(self, x, y, v_x=None, v_y=None, color=None, size=None, health=None):
         super().__init__(
             x = x, y = y, 
             v_x = v_x, v_y = v_y, 
@@ -53,7 +51,7 @@ class MovingSquare(MovingTarget):
             shape = 's')
 
 class MovingTriangle(MovingTarget):
-    def __init__(self, x, y, v_x, v_y, color=None, size=None, health=None):
+    def __init__(self, x, y, v_x=None, v_y=None, color=None, size=None, health=None):
         super().__init__(
             x = x, y = y, 
             v_x = v_x, v_y = v_y, 
@@ -61,7 +59,7 @@ class MovingTriangle(MovingTarget):
             shape = 't')
 
 class MovingCircle(MovingTarget):
-    def __init__(self, x, y, v_x, v_y, color=None, size=None, health=None):
+    def __init__(self, x, y, v_x=None, v_y=None, color=None, size=None, health=None):
         super().__init__(
             x = x, y = y, 
             v_x = v_x, v_y = v_y, 
