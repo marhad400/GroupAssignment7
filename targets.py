@@ -37,8 +37,6 @@ class TargetMaster:
         created_target = chosen_type(**params)
         self.target_list.append(created_target)
 
-        print(created_target)
-
 class MovingSquare(MovingTarget):
     
     def __init__(self, x, y, v_x, v_y, color=None, size=None, health=None):
@@ -70,6 +68,9 @@ class StaticSquare(Target):
             x = x, y = y, 
             color = color, size = size, health = health, 
             shape = 's')
+    
+    def draw():
+        pass
 
 class StaticTriangle(Target):
     def __init__(self, x, y, color=None, size=None, health=None):
@@ -77,6 +78,9 @@ class StaticTriangle(Target):
             x = x, y = y, 
             color = color, size = size, health = health, 
             shape = 't')
+    
+    def draw():
+        pass
 
 class StaticCircle(Target):
     def __init__(self, x, y, color=None, size=None, health=None):
@@ -84,6 +88,9 @@ class StaticCircle(Target):
             x = x, y = y, 
             color = color, size = size, health = health, 
             shape = 'c')
+    
+    def draw():
+        pass
 
 
 t = TargetMaster()
@@ -92,4 +99,3 @@ t.create_random_target()
 t.create_random_target()
 t.create_random_target()
 t.create_random_target()
-# print(t.target_list)
