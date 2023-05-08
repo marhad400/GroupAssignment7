@@ -8,7 +8,7 @@ class TargetMaster:
     def __init__(self):
         self.target_list: list[Drawable] = []
 
-    def create_random_target(self, is_moving: bool | None = None):
+    def create_random_target(self, screen_size, target_size, is_moving: bool | None = None):
         is_moving = is_moving if is_moving is not None else bool(random.randint(0, 1))
 
         moving_target_type = [
@@ -24,8 +24,9 @@ class TargetMaster:
 
         chosen_type: Drawable = None
         params: dict = {
-            'x': random.randint(1, 5),
-            'y': random.randint(1, 5)
+            'x': random.randint(target_size, screen_size[0] - target_size),
+            'y': random.randint(target_size, screen_size[1] - target_size),
+            'size': target_size
         }
         if is_moving:
             chosen_type = random.choice(moving_target_type)
@@ -86,16 +87,3 @@ class StaticCircle(Target):
             x = x, y = y, 
             color = color, size = size, health = health, 
             shape = 'c')
-
-
-t = TargetMaster()
-t.create_random_target()
-t.create_random_target()
-t.create_random_target()
-t.create_random_target()
-t.create_random_target()
-[print(i) for i in t.target_list]
-print("-------")
-t.move_all()
-
-[print(i) for i in t.target_list]

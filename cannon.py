@@ -3,8 +3,7 @@ import pygame as pg
 from random import randint, gauss
 from color import Color
 
-from inherited import Target, MovingTarget
-from targets import TargetMaster, MovingCircle, StaticCircle
+from targets import TargetMaster
 
 pg.init()
 pg.font.init()
@@ -164,7 +163,7 @@ class Manager:
     '''
     Class that manages events' handling, ball's motion and collision, target creation, etc.
     '''
-    def __init__(self, n_targets=1):
+    def __init__(self, n_targets=5):
         self.balls = []
         self.gun = Cannon()
         self.target_master = TargetMaster()
@@ -172,29 +171,27 @@ class Manager:
         self.n_targets = n_targets
         self.new_mission()
 
+    def calculate_size(self):
+        score = max(0, self.score_t.score())
+        upper_bound = max(1, 30 - 2*score)
+        lower_bound = 30 - score
+
+        return randint(upper_bound, lower_bound)
+
     def new_mission(self):
         '''
         Adds new targets.
         '''
-        for i in range(self.n_targets):
-            size=randint(
-                            max(1, 30 - 2*max(0, self.score_t.score())),
-                            30 - max(0, self.score_t.score())
-                        )
+        for _ in range(self.n_targets):
             
-            m = MovingTarget(
-                        size=size,
-                        x = randint(size, SCREEN_SIZE[0] - size),
-                        y = randint(size, SCREEN_SIZE[1] - size)
-                    )
-            s = Target(
-                        size=size,
-                        x = randint(size, SCREEN_SIZE[0] - size),
-                        y = randint(size, SCREEN_SIZE[1] - size)
-                    )
-            
-            self.target_master.target_list.append(m)
-            self.target_master.target_list.append(s)
+            self.target_master.create_random_target(
+                SCREEN_SIZE,
+                self.calculate_size()
+            )
+            self.target_master.create_random_target(
+                SCREEN_SIZE,
+                self.calculate_size()
+            )
 
 
     def process(self, events, screen):
