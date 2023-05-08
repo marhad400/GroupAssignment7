@@ -5,6 +5,9 @@ from artist import Artist
 
 import random
 
+class GameObject(Moveable, Drawable):
+    def __init__(self): pass
+
 class Target(Drawable, Killable):
     def __init__(self, x, y, color = None, size = None, health = None, shape = None):
         color = color or Color.rand_color()

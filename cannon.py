@@ -2,24 +2,16 @@ import numpy as np
 import pygame as pg
 from random import randint, gauss
 from color import Color
-
 from targets import TargetMaster
+from inherited import Projectile, GameObject
 
 pg.init()
 pg.font.init()
 
-SCREEN_SIZE = (800, 600)
-
-class GameObject:
-
-    def move(self):
-        pass
-    
-    def draw(self, screen):
-        pass  
+SCREEN_SIZE = (800, 600) 
 
 
-class Shell(GameObject):
+class Shell(Projectile):
     '''
     The ball class. Creates a ball, controls it's movement and implement it's rendering.
     '''
