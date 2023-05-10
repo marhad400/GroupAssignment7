@@ -19,13 +19,16 @@ class Drawable:
         For a triangle, it will be the length of a side
     """
 
-    def __init__(self, x: int, y: int, color: tuple, size: int):
+    def __init__(
+            self, 
+            x: int, y: int, 
+            color: tuple, size: int) -> None:
         """Initializes the necessary attributes for a drawable object"""
         self.x, self.y = x, y
         self.color = color
         self.size = size
 
-    def draw(): 
+    def draw() -> None: 
         """An empty definition for a sample draw function"""
         pass
 
@@ -43,11 +46,13 @@ class Moveable:
         The object's velocity in the y direction
     """
 
-    def __init__(self, v_x: int, v_y: int):
+    def __init__(
+            self, 
+            v_x: int, v_y: int) -> None:
         """Initializes the necessary attributes for a moveable object"""
         self.v_x, self.v_y = v_x, v_y
     
-    def move(): 
+    def move() -> None: 
         """An empty definition for a sample move function"""
         pass
 
@@ -68,11 +73,11 @@ class Killable:
         is killed after a single hit.
     """
 
-    def __init__(self, health: int = 1):
+    def __init__(self, health: int = 1) -> None:
         """Initializes the health to the provided health or a default of 1"""
         self.health = health
     
-    def deal(self, damage: int = 1):
+    def deal(self, damage: int = 1) -> None:
         """
         Deals a certain amount of damage to the object
 
@@ -83,7 +88,7 @@ class Killable:
         """
         self.health -= damage
     
-    def heal(self, health: int = 1):
+    def heal(self, health: int = 1) -> None:
         """
         Heals a certain amount of health back to the object
 
@@ -94,7 +99,11 @@ class Killable:
         """
         self.health += health
 
+    def kill(self) -> None:
+        """Sets the health to 0"""
+        self.health = 0
+
     @property
-    def is_alive(self):
+    def is_alive(self) -> bool:
         """A property denoting whether or not the object is alive (above 0 health)"""
         return self.health > 0
