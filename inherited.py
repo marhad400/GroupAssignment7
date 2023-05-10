@@ -35,8 +35,8 @@ class Target(Drawable, Killable):
 
 class MovingTarget(Moveable, Target):
     def __init__(self, x, y, v_x = None, v_y = None, color = None, size = None, health = None, shape = None):
-        v_x = random.randint(-2, 2)
-        v_y = random.randint(-2, 2)
+        v_x = v_x or random.randint(-2, 2)
+        v_y = v_y or random.randint(-2, 2)
         color = color or Color.rand_color()
         size = size or 30
         health = health or 1
@@ -73,8 +73,6 @@ class Projectile(Drawable, Killable, Moveable):
         '''
         Reflects ball's velocity when ball bumps into the screen corners. Implemetns inelastic rebounce.
         '''
-        coords = [self.x, self.y]
-        vels = [self.v_x, self.v_y]
 
         if self.x < self.size:
             self.x = self.size
