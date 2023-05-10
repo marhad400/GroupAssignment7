@@ -3,48 +3,11 @@ import pygame as pg
 from random import randint, gauss
 from color import Color
 from targets import TargetMaster
-from inherited import Projectile, GameObject
+from inherited import GameObject
+from projectiles import CircleProjectile, SquareProjectile, TriangleProjectile
 
 pg.init()
 pg.font.init()
-
-
-class CircleProjectile(Projectile):
-    '''
-    The ball class. Creates a ball, controls it's movement and implement it's rendering.
-    '''
-    def __init__(self, x, y, v_x, v_y, color, size, health):
-        '''
-        Constructor method. Initializes ball's parameters and initial values.
-        '''
-        super().__init__(
-            x = x, y = y,
-            v_x = v_x, v_y = v_y,
-            color = color, size = size, health = health,
-            shape = 'c')
-
-class SquareProjectile(Projectile):
-    def __init__(self, x, y, v_x, v_y, color, size, health):
-        '''
-        Constructor method. Initializes ball's parameters and initial values.
-        '''
-        super().__init__(
-            x = x, y = y,
-            v_x = v_x, v_y = v_y,
-            color = color, size = size, health = health,
-            shape = 's')
-        
-class TriangleProjectile(Projectile):
-    def __init__(self, x, y, v_x, v_y, color, size, health):
-        '''
-        Constructor method. Initializes ball's parameters and initial values.
-        '''
-        super().__init__(
-            x = x, y = y,
-            v_x = v_x, v_y = v_y,
-            color = color, size = size, health = health,
-            shape = 't')
-
 
 
 class Cannon(GameObject):
@@ -83,7 +46,7 @@ class Cannon(GameObject):
         vel = self.pow
         angle = self.angle
 
-        ball = TriangleProjectile(*self.coord, *[int(vel * np.cos(angle)), int(vel * np.sin(angle))], Color.RED, 20, 1)
+        ball = SquareProjectile(*self.coord, *[int(vel * np.cos(angle)), int(vel * np.sin(angle))], Color.GREEN, 20, 1)
         self.pow = self.min_pow
         self.active = False
         return ball
