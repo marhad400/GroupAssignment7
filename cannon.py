@@ -3,18 +3,18 @@ import pygame as pg
 from random import randint, gauss
 from color import Color
 from targets import TargetMaster
-from inherited import GameObject
 from projectiles import CircleProjectile, SquareProjectile, TriangleProjectile
+from abstract import Moveable, Drawable, Killable
 
 pg.init()
 pg.font.init()
 
 
-class Cannon(GameObject):
+class Cannon(Moveable, Drawable):
     '''
     Cannon class. Manages it's renderring, movement and striking.
     '''
-    def __init__(self, coord=[30, Color.SCREEN_SIZE[1]//2], angle=0, max_pow=50, min_pow=10, color=Color.RED):
+    def __init__(self, coord, color, angle=0, max_pow=50, min_pow=10):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
@@ -78,6 +78,16 @@ class Cannon(GameObject):
         gun_shape.append((gun_pos - vec_1).tolist())
         pg.draw.polygon(screen, self.color, gun_shape)
 
+class StaticCannon(Cannon):
+    '''
+    Cannon class. Manages it's renderring, movement and striking.
+    '''
+    def __init__(self, coord, angle, max_pow, min_pow, color):
+        super().__init__(
+            coord = coord, angle = angle, 
+            max_pow = max_pow, min_pow = min_pow, color = color
+        )
+
 class ScoreTable:
     '''
     Score table class.
@@ -108,7 +118,7 @@ class Manager:
     '''
     def __init__(self, n_targets=5):
         self.balls = []
-        self.gun = Cannon()
+        self.gun = StaticCannon([30, Color.SCREEN_SIZE[1]//2], 0, 50, 10, Color.RED)
         self.target_master = TargetMaster()
         self.score_t = ScoreTable()
         self.n_targets = n_targets

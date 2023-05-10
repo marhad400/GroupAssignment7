@@ -1,12 +1,10 @@
 from abstract import Drawable, Killable, Moveable
 from color import Color
-
 from artist import Artist
 
 import random
+import numpy as np
 
-class GameObject(Moveable, Drawable):
-    def __init__(self): pass
 
 class Target(Drawable, Killable):
     def __init__(self, x, y, color = None, size = None, health = None, shape = None):
@@ -77,15 +75,24 @@ class Projectile(Drawable, Killable, Moveable):
         '''
         coords = [self.x, self.y]
         vels = [self.v_x, self.v_y]
-        for i in range(2):
-            if coords[i] < self.size:
-                coords[i] = self.size
-                vels[i] = -int(vels[i] * refl_ort)
-                vels[1-i] = int(vels[1-i] * refl_par)
-            elif coords[i] > Color.SCREEN_SIZE[i] - self.size:
-                coords[i] = Color.SCREEN_SIZE[i] - self.size
-                vels[i] = -int(vels[i] * refl_ort)
-                vels[1-i] = int(vels[1-i] * refl_par)
+
+        if self.x < self.size:
+            self.x = self.size
+            self.v_x = -int(self.v_x * refl_ort)
+            self.v_y = int(self.v_y * refl_par)
+        elif self.x > Color.SCREEN_SIZE[0] - self.size:
+            self.x = Color.SCREEN_SIZE[0] - self.size
+            self.v_x = -int(self.v_x * refl_ort)
+            self.v_y = int(self.v_y * refl_par)
+
+        if self.y < self.size:
+            self.y = self.size
+            self.v_y = -int(self.v_y * refl_ort)
+            self.v_x = int(self.v_x * refl_par)
+        elif self.y > Color.SCREEN_SIZE[1] - self.size:
+            self.y = Color.SCREEN_SIZE[1] - self.size
+            self.v_y = -int(self.v_y * refl_ort)
+            self.v_x = int(self.v_x * refl_par)
 
     def move(self, time=1, grav=0):
         '''
