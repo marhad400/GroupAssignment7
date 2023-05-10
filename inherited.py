@@ -78,7 +78,7 @@ class Target(Drawable, Killable):
         Artist.draw(
             surface, 
             self.x, self.y, 
-            self.shape, self.color, self.size)
+            self.color, self.size, self.shape)
     
     def check_collision(self, projectile: Drawable) -> bool:
         """
@@ -367,4 +367,4 @@ class Projectile(Drawable, Killable, Moveable):
         Artist.draw(
             surface, 
             self.x, self.y, 
-            self.shape, self.color, self.size)
+            self.color, self.size, self.shape)
