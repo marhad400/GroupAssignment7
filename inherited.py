@@ -23,8 +23,8 @@ class Target(Drawable, Killable):
         Artist.draw(s, self.x, self.y, self.shape, self.color, self.size)
     
     def check_collision(self, ball):
-        dist = sum([(self.x - ball.coord[0])**2, (self.y - ball.coord[1])**2])**0.5
-        min_dist = self.size + ball.rad
+        dist = sum([(self.x - ball.x)**2, (self.y - ball.y)**2])**0.5
+        min_dist = self.size + ball.size
         return dist <= min_dist
 
     def __str__(self):
@@ -70,3 +70,34 @@ class Projectile(Drawable, Killable, Moveable):
         Killable.__init__(self, health=health)
         Moveable.__init__(self, v_x, v_y)
         self.shape = shape
+
+    def check_corners(self, refl_ort=0.8, refl_par=0.9):
+        '''
+        Reflects ball's velocity when ball bumps into the screen corners. Implemetns inelastic rebounce.
+        '''
+        coords = [self.x, self.y]
+        vels = [self.v_x, self.v_y]
+        for i in range(2):
+            if coords[i] < self.size:
+                coords[i] = self.size
+                vels[i] = -int(vels[i] * refl_ort)
+                vels[1-i] = int(vels[1-i] * refl_par)
+            elif coords[i] > Color.SCREEN_SIZE[i] - self.size:
+                coords[i] = Color.SCREEN_SIZE[i] - self.size
+                vels[i] = -int(vels[i] * refl_ort)
+                vels[1-i] = int(vels[1-i] * refl_par)
+
+    def move(self, time=1, grav=0):
+        '''
+        Moves the ball according to it's velocity and time step.
+        Changes the ball's velocity due to gravitational force.
+        '''
+        self.v_y += grav
+        self.x += time * self.v_x
+        self.y += time * self.v_y
+        self.check_corners()
+        if self.v_x**2 + self.v_y**2 < 2**2 and self.y > Color.SCREEN_SIZE[1] - self.size:
+            self.is_alive = False
+
+    def draw(self, s):
+        Artist.draw(s, self.x, self.y, self.shape, self.color, self.size)

@@ -8,63 +8,50 @@ from inherited import Projectile, GameObject
 pg.init()
 pg.font.init()
 
-SCREEN_SIZE = (800, 600) 
 
-
-class Shell(Projectile):
+class CircleProjectile(Projectile):
     '''
     The ball class. Creates a ball, controls it's movement and implement it's rendering.
     '''
-    def __init__(self, coord, vel, rad=20, color=None):
+    def __init__(self, x, y, v_x, v_y, color, size, health):
         '''
         Constructor method. Initializes ball's parameters and initial values.
         '''
-        self.coord = coord
-        self.vel = vel
-        if color == None:
-            color = Color.rand_color()
-        self.color = color
-        self.rad = rad
-        self.is_alive = True
+        super().__init__(
+            x = x, y = y,
+            v_x = v_x, v_y = v_y,
+            color = color, size = size, health = health,
+            shape = 'c')
 
-    def check_corners(self, refl_ort=0.8, refl_par=0.9):
+class SquareProjectile(Projectile):
+    def __init__(self, x, y, v_x, v_y, color, size, health):
         '''
-        Reflects ball's velocity when ball bumps into the screen corners. Implemetns inelastic rebounce.
+        Constructor method. Initializes ball's parameters and initial values.
         '''
-        for i in range(2):
-            if self.coord[i] < self.rad:
-                self.coord[i] = self.rad
-                self.vel[i] = -int(self.vel[i] * refl_ort)
-                self.vel[1-i] = int(self.vel[1-i] * refl_par)
-            elif self.coord[i] > SCREEN_SIZE[i] - self.rad:
-                self.coord[i] = SCREEN_SIZE[i] - self.rad
-                self.vel[i] = -int(self.vel[i] * refl_ort)
-                self.vel[1-i] = int(self.vel[1-i] * refl_par)
+        super().__init__(
+            x = x, y = y,
+            v_x = v_x, v_y = v_y,
+            color = color, size = size, health = health,
+            shape = 's')
+        
+class TriangleProjectile(Projectile):
+    def __init__(self, x, y, v_x, v_y, color, size, health):
+        '''
+        Constructor method. Initializes ball's parameters and initial values.
+        '''
+        super().__init__(
+            x = x, y = y,
+            v_x = v_x, v_y = v_y,
+            color = color, size = size, health = health,
+            shape = 't')
 
-    def move(self, time=1, grav=0):
-        '''
-        Moves the ball according to it's velocity and time step.
-        Changes the ball's velocity due to gravitational force.
-        '''
-        self.vel[1] += grav
-        for i in range(2):
-            self.coord[i] += time * self.vel[i]
-        self.check_corners()
-        if self.vel[0]**2 + self.vel[1]**2 < 2**2 and self.coord[1] > SCREEN_SIZE[1] - 2*self.rad:
-            self.is_alive = False
-
-    def draw(self, screen):
-        '''
-        Draws the ball on appropriate surface.
-        '''
-        pg.draw.circle(screen, self.color, self.coord, self.rad)
 
 
 class Cannon(GameObject):
     '''
     Cannon class. Manages it's renderring, movement and striking.
     '''
-    def __init__(self, coord=[30, SCREEN_SIZE[1]//2], angle=0, max_pow=50, min_pow=10, color=Color.RED):
+    def __init__(self, coord=[30, Color.SCREEN_SIZE[1]//2], angle=0, max_pow=50, min_pow=10, color=Color.RED):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
@@ -95,7 +82,8 @@ class Cannon(GameObject):
         '''
         vel = self.pow
         angle = self.angle
-        ball = Shell(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+
+        ball = TriangleProjectile(*self.coord, *[int(vel * np.cos(angle)), int(vel * np.sin(angle))], Color.RED, 20, 1)
         self.pow = self.min_pow
         self.active = False
         return ball
@@ -110,7 +98,7 @@ class Cannon(GameObject):
         '''
         Changes vertical position of the gun.
         '''
-        if (self.coord[1] > 30 or inc > 0) and (self.coord[1] < SCREEN_SIZE[1] - 30 or inc < 0):
+        if (self.coord[1] > 30 or inc > 0) and (self.coord[1] < Color.SCREEN_SIZE[1] - 30 or inc < 0):
             self.coord[1] += inc
 
     def draw(self, screen):
@@ -177,11 +165,11 @@ class Manager:
         for _ in range(self.n_targets):
             
             self.target_master.create_random_target(
-                SCREEN_SIZE,
+                Color.SCREEN_SIZE,
                 self.calculate_size()
             )
             self.target_master.create_random_target(
-                SCREEN_SIZE,
+                Color.SCREEN_SIZE,
                 self.calculate_size()
             )
 
@@ -268,7 +256,7 @@ class Manager:
             self.target_master.target_list.pop(j)
 
 
-screen = pg.display.set_mode(SCREEN_SIZE)
+screen = pg.display.set_mode(Color.SCREEN_SIZE)
 pg.display.set_caption("The gun of Khiryanov")
 
 done = False
