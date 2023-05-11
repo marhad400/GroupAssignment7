@@ -10,19 +10,23 @@ pg.init()
 pg.font.init()
 
 
-class Cannon(Moveable, Drawable):
+class Cannon(Moveable, Drawable, Killable):
     '''
     Cannon class. Manages it's renderring, movement and striking.
     '''
-    def __init__(self, coord, color, angle=0, max_pow=50, min_pow=10):
+    def __init__(self, x, y, v_x: int = 5, v_y: int = 5, angle: int = 0, max_pow: int = 50, min_pow: int = 10, health: int = None, color: tuple = Color.RED):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
-        self.coord = coord
+
+        Drawable.__init__(self, x=x, y=y, color=color, size=1)
+        Moveable.__init__(self, v_x=v_x, v_y=v_y)
+        Killable.__init__(self, health=health)
+
         self.angle = angle
         self.max_pow = max_pow
         self.min_pow = min_pow
-        self.color = color
+
         self.active = False
         self.pow = min_pow
     
@@ -46,7 +50,7 @@ class Cannon(Moveable, Drawable):
         vel = self.pow
         angle = self.angle
 
-        ball = SquareProjectile(*self.coord, *[int(vel * np.cos(angle)), int(vel * np.sin(angle))], Color.GREEN, 20, 1)
+        ball = SquareProjectile(self.x, self.y, *[int(vel * np.cos(angle)), int(vel * np.sin(angle))], Color.GREEN, 20, 1)
         self.pow = self.min_pow
         self.active = False
         return ball
@@ -55,14 +59,21 @@ class Cannon(Moveable, Drawable):
         '''
         Sets gun's direction to target position.
         '''
-        self.angle = np.arctan2(target_pos[1] - self.coord[1], target_pos[0] - self.coord[0])
+        self.angle = np.arctan2(target_pos[1] - self.y, target_pos[0] - self.x)
 
-    def move(self, inc):
+    def move(self, move_x: int = 0, move_y: int = 0):
         '''
         Changes vertical position of the gun.
         '''
-        if (self.coord[1] > 30 or inc > 0) and (self.coord[1] < Color.SCREEN_SIZE[1] - 30 or inc < 0):
-            self.coord[1] += inc
+        if move_x:
+            self.x += move_x * self.v_x
+            self.x = max(30, min(self.x, Color.SCREEN_SIZE[0] - 30))
+            print("move x", self.v_x)
+        if move_y:
+            self.y += move_y * self.v_y
+            self.y = max(30, min(self.y, Color.SCREEN_SIZE[1] - 30))
+            print("move y", self.v_y)
+        
 
     def draw(self, screen):
         '''
@@ -71,7 +82,7 @@ class Cannon(Moveable, Drawable):
         gun_shape = []
         vec_1 = np.array([int(5*np.cos(self.angle - np.pi/2)), int(5*np.sin(self.angle - np.pi/2))])
         vec_2 = np.array([int(self.pow*np.cos(self.angle)), int(self.pow*np.sin(self.angle))])
-        gun_pos = np.array(self.coord)
+        gun_pos = np.array([self.x, self.y])
         gun_shape.append((gun_pos + vec_1).tolist())
         gun_shape.append((gun_pos + vec_1 + vec_2).tolist())
         gun_shape.append((gun_pos + vec_2 - vec_1).tolist())
@@ -82,10 +93,13 @@ class StaticCannon(Cannon):
     '''
     Cannon class. Manages it's renderring, movement and striking.
     '''
-    def __init__(self, coord, angle, max_pow, min_pow, color):
+    def __init__(self, x, y, v_x: int = 5, v_y: int = 5, angle: int = 0, max_pow: int = 50, min_pow: int = 10, health: int = None, color: tuple = Color.RED):
         super().__init__(
-            coord = coord, angle = angle, 
-            max_pow = max_pow, min_pow = min_pow, color = color
+            x = x, y = y, 
+            v_x = v_x, v_y = v_y, 
+            angle = angle, 
+            max_pow = max_pow, min_pow = min_pow, 
+            health = health, color = color
         )
 
 class ScoreTable:
@@ -118,7 +132,7 @@ class Manager:
     '''
     def __init__(self, n_targets=5):
         self.balls = []
-        self.gun = StaticCannon([30, Color.SCREEN_SIZE[1]//2], 0, 50, 10, Color.RED)
+        self.gun = Cannon(30, Color.SCREEN_SIZE[1]//2)
         self.target_master = TargetMaster()
         self.score_t = ScoreTable()
         self.n_targets = n_targets
@@ -139,11 +153,13 @@ class Manager:
             
             self.target_master.create_random_target(
                 Color.SCREEN_SIZE,
-                self.calculate_size()
+                self.calculate_size(),
+                True
             )
             self.target_master.create_random_target(
                 Color.SCREEN_SIZE,
-                self.calculate_size()
+                self.calculate_size(),
+                True
             )
 
 
@@ -171,14 +187,17 @@ class Manager:
         Handles events from keyboard, mouse, etc.
         '''
         done = False
+        
+        keys_pressed = pg.key.get_pressed()
+        
+        move_x = -1 if keys_pressed[pg.K_LEFT] else 1 if keys_pressed[pg.K_RIGHT] else 0
+        move_y = -1 if keys_pressed[pg.K_UP] else 1 if keys_pressed[pg.K_DOWN] else 0
+
+        self.gun.move(move_x, move_y)
+
         for event in events:
             if event.type == pg.QUIT:
                 done = True
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_UP:
-                    self.gun.move(-5)
-                elif event.key == pg.K_DOWN:
-                    self.gun.move(5)
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.gun.activate()

@@ -1,3 +1,5 @@
+from color import Color
+
 class Drawable:
     """A class representing an objects ability to be drawed onto the screen
 
@@ -55,6 +57,7 @@ class Moveable:
     def move() -> None: 
         """An empty definition for a sample move function"""
         pass
+
 
 class Killable:
     """A class representing an objects ability to be killed

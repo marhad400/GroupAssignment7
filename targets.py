@@ -8,7 +8,7 @@ class TargetMaster:
     def __init__(self):
         self.target_list: list[Drawable] = []
 
-    def create_random_target(self, screen_size, target_size, is_moving: bool | None = None):
+    def create_random_target(self, screen_size, target_size, is_moving: bool = None):
         is_moving = is_moving if is_moving is not None else bool(random.randint(0, 1))
 
         moving_target_type = [

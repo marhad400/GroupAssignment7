@@ -41,10 +41,10 @@ class Target(Drawable, Killable):
             self, 
             x: int, 
             y: int, 
-            color: tuple | None = None, 
-            size: int | None = None, 
-            health: int | None = None, 
-            shape: str | None = None) -> None:
+            color: tuple = None, 
+            size: int = None, 
+            health: int = None, 
+            shape: str = None) -> None:
         """
         Intiailizes the necessary values for a Drawable, Killable, object using the
         init functions of both abstract classes, respectively
@@ -163,12 +163,12 @@ class MovingTarget(Moveable, Target):
             self, 
             x: int, 
             y: int, 
-            v_x: int | None = None, 
-            v_y: int | None = None, 
-            color: tuple | None = None, 
-            size: int | None = None, 
-            health: int | None = None, 
-            shape: str | None = None) -> None:
+            v_x: int = None, 
+            v_y: int = None, 
+            color: tuple = None, 
+            size: int = None, 
+            health: int = None, 
+            shape: str = None) -> None:
         """
         Intiailizes the necessary values for a Moveable, Target, object using
         both classes' init functions 
@@ -194,6 +194,60 @@ class MovingTarget(Moveable, Target):
         """Changes the x and y position of the object depending on the velocities"""
         self.x += self.v_x
         self.y += self.v_y
+
+        self.check_corners()
+    
+    def check_corners(self) -> None:
+        """
+        Implements inelastic rebound when the projectile hits the screen's edge
+
+        Parameters
+        ----------
+        refl_ort : float
+            The coefficient of restitution orthogonal to the surface (default 0.9)
+        refl_par : float
+            The coefficient of restitution parallel to the surface (default 0.8)
+        """
+
+        # If the projectile hits the left edge of the screen
+        if self.x < self.size:
+            # Make sure we don't go off-screen
+            self.x = self.size 
+
+            # Reverse the x velocity and calculate the new velocities (decreased)
+            # based on the reflection parameters
+            self.v_x = -int(self.v_x)
+            self.v_y = int(self.v_y)
+
+        # If the projectile hits the right edge of the scrteen
+        elif self.x > Color.SCREEN_SIZE[0] - self.size:
+            # Make sure we don't go off-screen
+            self.x = Color.SCREEN_SIZE[0] - self.size
+
+            # Reverse the x velocity and calculate the new velocities (decreased)
+            # based on the reflection parameters
+            self.v_x = -int(self.v_x)
+            self.v_y = int(self.v_y)
+
+        # If the projectile hits the top of the screen
+        if self.y < self.size:
+            # Make sure we don't go off-screen
+            self.y = self.size
+
+            # Reverse the y velocity and calculate the new velocities (decreased)
+            # based on the reflection parameters
+            self.v_x = int(self.v_x)
+            self.v_y = -int(self.v_y)
+        
+        # If the projectile hits the bottom of the screen
+        elif self.y > Color.SCREEN_SIZE[1] - self.size:
+            # Make sure we don't go off-screen
+            self.y = Color.SCREEN_SIZE[1] - self.size
+
+            # Reverse the y velocity and calculate the new velocities (decreased)
+            # based on the reflection parameters
+            self.v_x = int(self.v_x)
+            self.v_y = -int(self.v_y)
     
     def __str__(self):
         """Returns a string representation of the object"""
@@ -247,10 +301,10 @@ class Projectile(Drawable, Killable, Moveable):
             y: int, 
             v_x: int, 
             v_y: int, 
-            color: int | None = None, 
-            size: int | None = None, 
-            health: int | None = None, 
-            shape: int | None = None) -> None:
+            color: int = None, 
+            size: int = None, 
+            health: int = None, 
+            shape: int = None) -> None:
         """
         Intiailizes the necessary values for a Moveable, Killable, Drawable, 
         object using those classes' init functions 
@@ -273,6 +327,48 @@ class Projectile(Drawable, Killable, Moveable):
         # Shape initialization
         self.shape = shape
 
+    def move(
+            self, 
+            time: int = 1, grav: int = 0) -> None:
+        """
+        Moves the projectile based on its velocity and the effect of gravity
+
+        Parameters
+        ----------
+        time : int
+            The time step multiplier for the velocity (default 1)
+        gravity : int
+            The force of gravity (default 0)
+        """
+        # Add gravity
+        self.v_y += grav
+
+        # Change position based on velocity
+        self.x += time * self.v_x
+        self.y += time * self.v_y
+
+        # Check screen collisions to make sure we don't go off-screen
+        self.check_corners()
+
+        # If the projectile is moving slowly at the bottom of the screen
+        # it has lost its health
+        if self.v_x**2 + self.v_y**2 < 2**2 and self.y > Color.SCREEN_SIZE[1] - 2*self.size:
+            self.kill()
+
+    def draw(self, surface: Surface) -> None:
+        """
+        Uses a static Artist draw function to draw the object to the given surface
+        
+        Parameters
+        ----------
+        surface : pygame.Surface
+            A surface object to draw the Drawable onto
+        """
+        Artist.draw(
+            surface, 
+            self.x, self.y, 
+            self.color, self.size, self.shape)
+    
     def check_corners(
             self, 
             refl_ort: float = 0.8, refl_par: float = 0.9) -> None:
@@ -326,45 +422,3 @@ class Projectile(Drawable, Killable, Moveable):
             # based on the reflection parameters
             self.v_x = int(self.v_x * refl_par)
             self.v_y = -int(self.v_y * refl_ort)
-
-    def move(
-            self, 
-            time: int = 1, grav: int = 0) -> None:
-        """
-        Moves the projectile based on its velocity and the effect of gravity
-
-        Parameters
-        ----------
-        time : int
-            The time step multiplier for the velocity (default 1)
-        gravity : int
-            The force of gravity (default 0)
-        """
-        # Add gravity
-        self.v_y += grav
-
-        # Change position based on velocity
-        self.x += time * self.v_x
-        self.y += time * self.v_y
-
-        # Check screen collisions to make sure we don't go off-screen
-        self.check_corners()
-
-        # If the projectile is moving slowly at the bottom of the screen
-        # it has lost its health
-        if self.v_x**2 + self.v_y**2 < 2**2 and self.y > Color.SCREEN_SIZE[1] - 2*self.size:
-            self.kill()
-
-    def draw(self, surface: Surface) -> None:
-        """
-        Uses a static Artist draw function to draw the object to the given surface
-        
-        Parameters
-        ----------
-        surface : pygame.Surface
-            A surface object to draw the Drawable onto
-        """
-        Artist.draw(
-            surface, 
-            self.x, self.y, 
-            self.color, self.size, self.shape)
