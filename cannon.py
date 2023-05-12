@@ -73,6 +73,7 @@ class Cannon(Moveable, Drawable, Killable):
             self.y += move_y * self.v_y
             self.y = max(30, min(self.y, Color.SCREEN_SIZE[1] - 30))
             print("move y", self.v_y)
+
         
 
     def draw(self, screen):
@@ -101,6 +102,15 @@ class StaticCannon(Cannon):
             max_pow = max_pow, min_pow = min_pow, 
             health = health, color = color
         )
+class Artificial_Cannon(Cannon):
+    '''
+    Tank class. Manages its renderring, movement, and striking. 
+    '''
+    def __init__(self, x, y, v_x: int = 5, v_y: int = 5, angle: int = 0, max_pow: int = 50, min_pow: int = 10, health: int = None, color: tuple = Color.RED):
+        super().__init__(x, y, v_x, v_y, angle, max_pow, min_pow, health, color)
+    
+    
+
 
 class ScoreTable:
     '''
@@ -132,7 +142,8 @@ class Manager:
     '''
     def __init__(self, n_targets=5):
         self.balls = []
-        self.gun = Cannon(30, Color.SCREEN_SIZE[1]//2)
+        self.gun = Cannon(30, Color.SCREEN_SIZE[1]//2, color=Color.LIGHT_BLUE)
+        self.artificial_gun = Artificial_Cannon(Color.SCREEN_SIZE[0] - 30, Color.SCREEN_SIZE[1]//2)
         self.target_master = TargetMaster()
         self.score_t = ScoreTable()
         self.n_targets = n_targets
@@ -172,6 +183,9 @@ class Manager:
         if pg.mouse.get_focused():
             mouse_pos = pg.mouse.get_pos()
             self.gun.set_angle(mouse_pos)
+
+        artificial_pos = self.gun.x, self.gun.y
+        self.artificial_gun.set_angle(artificial_pos)
         
         self.move()
         self.collide()
@@ -215,6 +229,7 @@ class Manager:
             ball.draw(screen)
         self.target_master.draw_all(screen)
         self.gun.draw(screen)
+        self.artificial_gun.draw(screen)
         self.score_t.draw(screen)
 
     def move(self):
