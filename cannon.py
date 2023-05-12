@@ -106,10 +106,10 @@ class Artificial_Cannon(Cannon):
     '''
     Tank class. Manages its renderring, movement, and striking. 
     '''
-    def __init__(self, x, y, v_x: int = 5, v_y: int = 5, angle: int = 0, max_pow: int = 50, min_pow: int = 10, health: int = None, color: tuple = Color.RED):
+    def __init__(self, x, y, v_x: int = 4, v_y: int = 4, angle: int = 0, max_pow: int = 50, min_pow: int = 10, health: int = None, color: tuple = Color.RED):
         super().__init__(x, y, v_x, v_y, angle, max_pow, min_pow, health, color)
     
-    
+
 
 
 class ScoreTable:
@@ -208,6 +208,17 @@ class Manager:
         move_y = -1 if keys_pressed[pg.K_UP] else 1 if keys_pressed[pg.K_DOWN] else 0
 
         self.gun.move(move_x, move_y)
+
+        while self.artificial_gun.x != self.gun.x and self.artificial_gun.y != self.gun.y:
+            if self.gun.x < self.artificial_gun.x:
+                self.artificial_gun.move(-1, 0)
+            if self.gun.x > self.artificial_gun.x:
+                self.artificial_gun.move(1, 0)
+            if self.gun.y < self.artificial_gun.y:
+                self.artificial_gun.move(0, 1)
+            if self.gun.y > self.artificial_gun.y:
+                self.artificial_gun.move(0, -1)
+
 
         for event in events:
             if event.type == pg.QUIT:
