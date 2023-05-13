@@ -9,18 +9,15 @@ from abstract import Moveable, Drawable, Killable
 pg.init()
 pg.font.init()
 
+class Cannon(Drawable, Killable):
 
-class Cannon(Moveable, Drawable, Killable):
-    '''
-    Cannon class. Manages it's renderring, movement and striking.
-    '''
-    def __init__(self, x, y, v_x: int = 5, v_y: int = 5, angle: int = 0, max_pow: int = 50, min_pow: int = 10, health: int = None, color: tuple = Color.RED):
+    def __init__(self, x, y, health=1, color=None, angle=0, max_pow=50, min_pow=10):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
+        color = color or Color.rand_color()
 
         Drawable.__init__(self, x=x, y=y, color=color, size=1)
-        Moveable.__init__(self, v_x=v_x, v_y=v_y)
         Killable.__init__(self, health=health)
 
         self.angle = angle
@@ -29,7 +26,7 @@ class Cannon(Moveable, Drawable, Killable):
 
         self.active = False
         self.pow = min_pow
-    
+
     def activate(self):
         '''
         Activates gun's charge.
@@ -60,21 +57,7 @@ class Cannon(Moveable, Drawable, Killable):
         Sets gun's direction to target position.
         '''
         self.angle = np.arctan2(target_pos[1] - self.y, target_pos[0] - self.x)
-
-    def move(self, move_x: int = 0, move_y: int = 0):
-        '''
-        Changes vertical position of the gun.
-        '''
-        if move_x:
-            self.x += move_x * self.v_x
-            self.x = max(30, min(self.x, Color.SCREEN_SIZE[0] - 30))
-            print("move x", self.v_x)
-        if move_y:
-            self.y += move_y * self.v_y
-            self.y = max(30, min(self.y, Color.SCREEN_SIZE[1] - 30))
-            print("move y", self.v_y)
-
-        
+    
 
     def draw(self, screen):
         '''
@@ -90,26 +73,72 @@ class Cannon(Moveable, Drawable, Killable):
         gun_shape.append((gun_pos - vec_1).tolist())
         pg.draw.polygon(screen, self.color, gun_shape)
 
-class StaticCannon(Cannon):
-    '''
-    Cannon class. Manages it's renderring, movement and striking.
-    '''
-    def __init__(self, x, y, v_x: int = 5, v_y: int = 5, angle: int = 0, max_pow: int = 50, min_pow: int = 10, health: int = None, color: tuple = Color.RED):
-        super().__init__(
-            x = x, y = y, 
-            v_x = v_x, v_y = v_y, 
-            angle = angle, 
-            max_pow = max_pow, min_pow = min_pow, 
-            health = health, color = color
-        )
-class Artificial_Cannon(Cannon):
+class MovingCannon(Moveable, Cannon):
+    
+    def __init__(self, v_x=6, v_y=6, *args, **kwargs):
+        '''
+        Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
+        '''
+
+        Moveable.__init__(self, v_x=v_x, v_y=v_y)
+        Cannon.__init__(self, *args, **kwargs)
+
+    def move(self, move_x: int = 0, move_y: int = 0):
+        '''
+        Changes vertical position of the gun.
+        '''
+        self.x += move_x * self.v_x
+        self.x = max(30, min(self.x, Color.SCREEN_SIZE[0] - 30))
+        
+        self.y += move_y * self.v_y
+        self.y = max(30, min(self.y, Color.SCREEN_SIZE[1] - 30))
+    
+    def move_right(self):
+        self.move(1, 0)
+
+    def move_left(self):
+        self.move(-1, 0)
+    
+    def move_up(self):
+        self.move(0, -1)
+    
+    def move_down(self):
+        self.move(0, 1)
+
+class ArtificialCannon(MovingCannon):
     '''
     Tank class. Manages its renderring, movement, and striking. 
     '''
-    def __init__(self, x, y, v_x: int = 4, v_y: int = 4, angle: int = 0, max_pow: int = 50, min_pow: int = 10, health: int = None, color: tuple = Color.RED):
-        super().__init__(x, y, v_x, v_y, angle, max_pow, min_pow, health, color)
-    
+    def __init__(self, v_x = 3, v_y = 3, *args, **kwargs):
+        '''
+        Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
+        '''
+        super().__init__(v_x, v_y, *args, **kwargs)
 
+    def determine_move(self, user_cannon):
+        d_x = self.x - user_cannon.x
+        d_y = self.y - user_cannon.y
+
+        dist = sum(
+                    [
+                        (self.x - user_cannon.x)**2, 
+                        (self.y - user_cannon.y)**2
+                    ]
+                )**0.5
+        min_dist = self.size + user_cannon.size + 150
+        
+        if dist < min_dist:
+            return
+
+        if d_x < 0:
+            self.move_right()
+        elif d_x > 0:
+            self.move_left()
+        
+        if d_y < 0:
+            self.move_down()
+        elif d_y > 0:
+            self.move_up()
 
 
 class ScoreTable:
@@ -142,8 +171,8 @@ class Manager:
     '''
     def __init__(self, n_targets=5):
         self.balls = []
-        self.gun = Cannon(30, Color.SCREEN_SIZE[1]//2, color=Color.LIGHT_BLUE)
-        self.artificial_gun = Artificial_Cannon(Color.SCREEN_SIZE[0] - 30, Color.SCREEN_SIZE[1]//2)
+        self.gun = MovingCannon(x=30, y=Color.SCREEN_SIZE[1]//2, color=Color.LIGHT_BLUE)
+        self.artificial_gun = ArtificialCannon(x=Color.SCREEN_SIZE[0] - 30, y=Color.SCREEN_SIZE[1]//2)
         self.target_master = TargetMaster()
         self.score_t = ScoreTable()
         self.n_targets = n_targets
@@ -184,8 +213,8 @@ class Manager:
             mouse_pos = pg.mouse.get_pos()
             self.gun.set_angle(mouse_pos)
 
-        artificial_pos = self.gun.x, self.gun.y
-        self.artificial_gun.set_angle(artificial_pos)
+        user_pos = self.gun.x, self.gun.y
+        self.artificial_gun.set_angle(user_pos)
         
         self.move()
         self.collide()
@@ -202,23 +231,25 @@ class Manager:
         '''
         done = False
         
-        keys_pressed = pg.key.get_pressed()
         
-        move_x = -1 if keys_pressed[pg.K_LEFT] else 1 if keys_pressed[pg.K_RIGHT] else 0
-        move_y = -1 if keys_pressed[pg.K_UP] else 1 if keys_pressed[pg.K_DOWN] else 0
+        key_to_move = {
+            pg.K_LEFT: self.gun.move_left,
+            pg.K_RIGHT: self.gun.move_right,
+            pg.K_UP: self.gun.move_up,
+            pg.K_DOWN: self.gun.move_down,
+            
+            pg.K_a: self.gun.move_left,
+            pg.K_d: self.gun.move_right,
+            pg.K_w: self.gun.move_up,
+            pg.K_s: self.gun.move_down
+        }
 
-        self.gun.move(move_x, move_y)
+        keys_pressed = pg.key.get_pressed()
+        for key, move_func in key_to_move.items():
+            if keys_pressed[key]:
+                move_func()
 
-        while self.artificial_gun.x != self.gun.x and self.artificial_gun.y != self.gun.y:
-            if self.gun.x < self.artificial_gun.x:
-                self.artificial_gun.move(-1, 0)
-            if self.gun.x > self.artificial_gun.x:
-                self.artificial_gun.move(1, 0)
-            if self.gun.y < self.artificial_gun.y:
-                self.artificial_gun.move(0, 1)
-            if self.gun.y > self.artificial_gun.y:
-                self.artificial_gun.move(0, -1)
-
+        self.artificial_gun.determine_move(self.gun)
 
         for event in events:
             if event.type == pg.QUIT:
