@@ -67,7 +67,7 @@ class Cannon(Drawable, Killable):
     def remove_dead(self):
         for projectile in self.fired_projectiles:
             if not projectile.is_alive:
-                self.fired_projectiles.remove(projectile)    
+                self.fired_projectiles.remove(projectile)
 
     def draw(self, screen):
         '''
@@ -239,7 +239,7 @@ class Manager:
             mouse_pos = pg.mouse.get_pos()
             self.gun.set_angle(mouse_pos)
 
-        user_pos = self.gun.x, self.gun.y
+        user_pos = self.gun.x, self.gun.y - 5
         self.artificial_gun.set_angle(user_pos)
         
         self.move()
@@ -298,6 +298,7 @@ class Manager:
         '''
         for ball in self.gun.fired_projectiles + self.artificial_gun.fired_projectiles:
             ball.draw(screen)
+
         self.target_master.draw_all(screen)
         self.gun.draw(screen)
         self.artificial_gun.draw(screen)
@@ -309,6 +310,9 @@ class Manager:
         '''
         for ball in self.gun.fired_projectiles + self.artificial_gun.fired_projectiles:
             ball.move(grav=2)
+            if self.gun.check_collision(ball):
+                self.gun.deal()
+                print("dead")
         
         self.gun.remove_dead()
         self.artificial_gun.remove_dead()

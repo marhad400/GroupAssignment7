@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 class Drawable:
     """A class representing an objects ability to be drawed onto the screen
 
@@ -31,6 +33,35 @@ class Drawable:
     def draw() -> None: 
         """An empty definition for a sample draw function"""
         pass
+
+    def check_collision(self, projectile: Drawable) -> bool:
+        """
+        Checks if a collision occured between this object and another Drawable
+        
+        Parameters
+        ----------
+        projectile : Drawable
+            A Drawable object that may have collided with the object
+
+        Returns
+        -------
+        collided : bool
+            A bool denoting whether or not the collision occured
+        """
+        # Classic linear distance function
+        # The root of the sum of the difference of the x's squared and y's squared 
+        dist = sum(
+                    [
+                        (self.x - projectile.x)**2, 
+                        (self.y - projectile.y)**2
+                    ]
+                )**0.5
+        # The minimum acceptable non-collision distance
+        min_dist = self.size + projectile.size
+
+        # Whether or not the distance between the objects is less than the
+        # minimum accepted distance
+        return dist <= min_dist
 
 class Moveable:
     """A class representing an objects ability to be moved
