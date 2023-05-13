@@ -6,6 +6,9 @@ from targets import TargetMaster
 from projectiles import CircleProjectile, SquareProjectile, TriangleProjectile
 from abstract import Moveable, Drawable, Killable
 
+import time
+import threading
+
 pg.init()
 pg.font.init()
 
@@ -27,6 +30,8 @@ class Cannon(Drawable, Killable):
         self.active = False
         self.pow = min_pow
 
+        self.fired_projectiles = []
+
     def activate(self):
         '''
         Activates gun's charge.
@@ -40,24 +45,29 @@ class Cannon(Drawable, Killable):
         if self.active and self.pow < self.max_pow:
             self.pow += inc
 
-    def strike(self):
+    def strike(self, vel = None):
         '''
         Creates ball, according to gun's direction and current charge power.
         '''
-        vel = self.pow
+        vel = vel or self.pow
         angle = self.angle
-
-        ball = SquareProjectile(self.x, self.y, int(vel * np.cos(angle)), int(vel * np.sin(angle)), Color.GREEN, 20, 1)
+        
+        projectile = SquareProjectile(self.x, self.y, int(vel * np.cos(angle)), int(vel * np.sin(angle)), Color.GREEN, 20, 1)
         self.pow = self.min_pow
         self.active = False
-        return ball
+        
+        self.fired_projectiles.append(projectile)
         
     def set_angle(self, target_pos):
         '''
         Sets gun's direction to target position.
         '''
         self.angle = np.arctan2(target_pos[1] - self.y, target_pos[0] - self.x)
-    
+
+    def remove_dead(self):
+        for projectile in self.fired_projectiles:
+            if not projectile.is_alive:
+                self.fired_projectiles.remove(projectile)    
 
     def draw(self, screen):
         '''
@@ -75,7 +85,7 @@ class Cannon(Drawable, Killable):
 
 class MovingCannon(Moveable, Cannon):
     
-    def __init__(self, v_x=6, v_y=6, *args, **kwargs):
+    def __init__(self, v_x=20, v_y=6, *args, **kwargs):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
@@ -109,11 +119,13 @@ class ArtificialCannon(MovingCannon):
     '''
     Tank class. Manages its renderring, movement, and striking. 
     '''
-    def __init__(self, v_x = 3, v_y = 3, *args, **kwargs):
+    def __init__(self, v_x = 3, v_y = 3, min_pow = 30, *args, **kwargs):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
-        super().__init__(v_x, v_y, *args, **kwargs)
+        super().__init__(v_x, v_y, min_pow = min_pow, *args, **kwargs)
+
+        self.strike_thread = None
 
     def determine_move(self, user_cannon):
         d_x = self.x - user_cannon.x
@@ -125,10 +137,10 @@ class ArtificialCannon(MovingCannon):
                         (self.y - user_cannon.y)**2
                     ]
                 )**0.5
-        min_dist = self.size + user_cannon.size + 150
+        min_dist = self.size + user_cannon.size + 100
         
         if dist < min_dist:
-            return
+            return False
 
         if d_x < 0:
             self.move_right()
@@ -140,6 +152,21 @@ class ArtificialCannon(MovingCannon):
         elif d_y > 0:
             self.move_up()
 
+        return True
+
+    def keep_striking(self):
+        while self.strike_thread:
+            time.sleep(1)
+            if self.strike_thread:
+                self.strike(vel=60)
+
+    def start_thread(self):
+        if not self.strike_thread:
+            self.strike_thread = threading.Thread(target=self.keep_striking, daemon=True)
+            self.strike_thread.start()
+        
+    def end_thread(self):
+        self.strike_thread = None
 
 class ScoreTable:
     '''
@@ -170,9 +197,8 @@ class Manager:
     Class that manages events' handling, ball's motion and collision, target creation, etc.
     '''
     def __init__(self, n_targets=5):
-        self.balls = []
         self.gun = MovingCannon(x=30, y=Color.SCREEN_SIZE[1]//2, color=Color.LIGHT_BLUE)
-        self.artificial_gun = ArtificialCannon(x=Color.SCREEN_SIZE[0] - 30, y=Color.SCREEN_SIZE[1]//2)
+        self.artificial_gun = ArtificialCannon(x=Color.SCREEN_SIZE[0] - 30, y=Color.SCREEN_SIZE[1]//2, color=Color.RED)
         self.target_master = TargetMaster()
         self.score_t = ScoreTable()
         self.n_targets = n_targets
@@ -220,7 +246,7 @@ class Manager:
         self.collide()
         self.draw(screen)
 
-        if len(self.target_master.target_list) == 0 and len(self.balls) == 0:
+        if not self.target_master.target_list and not self.gun.fired_projectiles:
             self.new_mission()
 
         return done
@@ -249,7 +275,10 @@ class Manager:
             if keys_pressed[key]:
                 move_func()
 
-        self.artificial_gun.determine_move(self.gun)
+        if self.artificial_gun.determine_move(self.gun):
+            self.artificial_gun.end_thread()
+        else:
+            self.artificial_gun.start_thread()
 
         for event in events:
             if event.type == pg.QUIT:
@@ -259,7 +288,7 @@ class Manager:
                     self.gun.activate()
             elif event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:
-                    self.balls.append(self.gun.strike())
+                    self.gun.strike()
                     self.score_t.b_used += 1
         return done
 
@@ -267,7 +296,7 @@ class Manager:
         '''
         Runs balls', gun's, targets' and score table's drawing method.
         '''
-        for ball in self.balls:
+        for ball in self.gun.fired_projectiles + self.artificial_gun.fired_projectiles:
             ball.draw(screen)
         self.target_master.draw_all(screen)
         self.gun.draw(screen)
@@ -278,13 +307,12 @@ class Manager:
         '''
         Runs balls' and gun's movement method, removes dead balls.
         '''
-        dead_balls = []
-        for i, ball in enumerate(self.balls):
+        for ball in self.gun.fired_projectiles + self.artificial_gun.fired_projectiles:
             ball.move(grav=2)
-            if not ball.is_alive:
-                dead_balls.append(i)
-        for i in reversed(dead_balls):
-            self.balls.pop(i)
+        
+        self.gun.remove_dead()
+        self.artificial_gun.remove_dead()
+
         self.target_master.move_all()
         self.gun.gain()
 
@@ -294,7 +322,7 @@ class Manager:
         '''
         collisions = []
         targets_c = []
-        for i, ball in enumerate(self.balls):
+        for i, ball in enumerate(self.gun.fired_projectiles):
             for j, target in enumerate(self.target_master.target_list):
                 if target.check_collision(ball):
                     collisions.append([i, j])
