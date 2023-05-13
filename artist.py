@@ -72,3 +72,12 @@ class Artist:
         gun_shape.append((gun_pos - vec_1).tolist())
         
         pygame.draw.polygon(surface, color, gun_shape)
+
+    @staticmethod
+    def draw_score(surface, font, targets_destroyed, projectiles_used, score, primary_color, secondary_color):
+        score_surf = []
+        score_surf.append(font.render("Destroyed: {}".format(targets_destroyed), True, primary_color))
+        score_surf.append(font.render("Balls used: {}".format(projectiles_used), True, primary_color))
+        score_surf.append(font.render("Total: {}".format(score), True, secondary_color))
+        for i in range(3):
+            surface.blit(score_surf[i], [10, 10 + 30*i])

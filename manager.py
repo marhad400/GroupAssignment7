@@ -1,6 +1,7 @@
 from cannon import MovingCannon, ArtificialCannon
 from targets import TargetMaster
 from color import Color
+from artist import Artist
 
 import pygame
 
@@ -14,13 +15,13 @@ class ScoreTable:
     def score(self):
         return self.targets_destroyed - self.projectiles_used
 
-    def draw(self, screen: pygame.Surface):
-        score_surf = []
-        score_surf.append(self.font.render("Destroyed: {}".format(self.targets_destroyed), True, Color.WHITE))
-        score_surf.append(self.font.render("Balls used: {}".format(self.projectiles_used), True, Color.WHITE))
-        score_surf.append(self.font.render("Total: {}".format(self.score), True, Color.RED))
-        for i in range(3):
-            screen.blit(score_surf[i], [10, 10 + 30*i])
+    def draw(self, screen):
+        Artist.draw_score(
+            screen, 
+            self.font, 
+            self.targets_destroyed, self.projectiles_used, self.score,
+            Color.WHITE, Color.RED
+            )
 
 class Manager:
 

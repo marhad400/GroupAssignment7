@@ -47,7 +47,7 @@ class Cannon(Drawable, Killable):
         '''
         vel = vel or self.pow
         
-        projectile = self.projectile_master.create_random_projectile(self.x, self.y, vel, self.angle)
+        self.projectile_master.create_random_projectile(self.x, self.y, vel, self.angle)
         self.pow = self.min_pow
         self.active = False
                 
