@@ -50,7 +50,7 @@ class Cannon(Moveable, Drawable, Killable):
         vel = self.pow
         angle = self.angle
 
-        ball = SquareProjectile(self.x, self.y, *[int(vel * np.cos(angle)), int(vel * np.sin(angle))], Color.GREEN, 20, 1)
+        ball = SquareProjectile(self.x, self.y, int(vel * np.cos(angle)), int(vel * np.sin(angle)), Color.GREEN, 20, 1)
         self.pow = self.min_pow
         self.active = False
         return ball

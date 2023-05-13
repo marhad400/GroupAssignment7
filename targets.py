@@ -44,46 +44,43 @@ class TargetMaster:
 
 class MovingSquare(MovingTarget):
     
-    def __init__(self, x, y, v_x=None, v_y=None, color=None, size=None, health=None):
+    def __init__(self, *args, **kwargs):
         super().__init__(
-            x = x, y = y, 
-            v_x = v_x, v_y = v_y, 
-            color = color, size = size, health = health, 
-            shape = 's')
+            *args,
+            **kwargs, 
+            shape = 'c')
 
 class MovingTriangle(MovingTarget):
-    def __init__(self, x, y, v_x=None, v_y=None, color=None, size=None, health=None):
+    def __init__(self, *args, **kwargs):
         super().__init__(
-            x = x, y = y, 
-            v_x = v_x, v_y = v_y, 
-            color = color, size = size, health = health, 
-            shape = 't')
+            *args,
+            **kwargs, 
+            shape = 'c')
 
 class MovingCircle(MovingTarget):
-    def __init__(self, x, y, v_x=None, v_y=None, color=None, size=None, health=None):
+    def __init__(self, *args, **kwargs):
         super().__init__(
-            x = x, y = y, 
-            v_x = v_x, v_y = v_y, 
-            color = color, size = size, health = health, 
+            *args,
+            **kwargs, 
             shape = 'c')
 
 class StaticSquare(Target):
-    def __init__(self, x, y, color=None, size=None, health=None):
+    def __init__(self, *args, **kwargs):
         super().__init__(
-            x = x, y = y, 
-            color = color, size = size, health = health, 
-            shape = 's')
+            *args,
+            **kwargs, 
+            shape = 'c')
 
 class StaticTriangle(Target):
-    def __init__(self, x, y, color=None, size=None, health=None):
+    def __init__(self, *args, **kwargs):
         super().__init__(
-            x = x, y = y, 
-            color = color, size = size, health = health, 
-            shape = 't')
+            *args,
+            **kwargs, 
+            shape = 'c')
 
 class StaticCircle(Target):
-    def __init__(self, x, y, color=None, size=None, health=None):
+    def __init__(self, *args, **kwargs):
         super().__init__(
-            x = x, y = y, 
-            color = color, size = size, health = health, 
+            *args,
+            **kwargs, 
             shape = 'c')

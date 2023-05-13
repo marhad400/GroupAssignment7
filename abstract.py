@@ -1,5 +1,3 @@
-from color import Color
-
 class Drawable:
     """A class representing an objects ability to be drawed onto the screen
 

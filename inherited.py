@@ -42,9 +42,9 @@ class Target(Drawable, Killable):
             x: int, 
             y: int, 
             color: tuple = None, 
-            size: int = None, 
-            health: int = None, 
-            shape: str = None) -> None:
+            size: int = 5, 
+            health: int = 1, 
+            shape: str = 'c') -> None:
         """
         Intiailizes the necessary values for a Drawable, Killable, object using the
         init functions of both abstract classes, respectively
@@ -54,12 +54,8 @@ class Target(Drawable, Killable):
         This is due to behavior in Python with passing attributes through super
         functions.
         """
-        # Default values
         color = color or Color.rand_color()
-        size = size or 5
-        health = health or 1
-        shape = shape or 'c'
-        
+
         # Parent class initialization
         Drawable.__init__(self, x=x, y=y, color=color, size=size)
         Killable.__init__(self, health=health)
@@ -166,8 +162,8 @@ class MovingTarget(Moveable, Target):
             v_x: int = None, 
             v_y: int = None, 
             color: tuple = None, 
-            size: int = None, 
-            health: int = None, 
+            size: int = 30, 
+            health: int = 1, 
             shape: str = None) -> None:
         """
         Intiailizes the necessary values for a Moveable, Target, object using
@@ -179,12 +175,9 @@ class MovingTarget(Moveable, Target):
         This is due to behavior in Python with passing attributes through super
         functions.
         """
-        # Default values
         v_x = v_x or random.randint(-2, 2)
         v_y = v_y or random.randint(-2, 2)
         color = color or Color.rand_color()
-        size = size or 30
-        health = health or 1
 
         # Parent class initialization
         Moveable.__init__(self, v_x, v_y)
@@ -302,9 +295,9 @@ class Projectile(Drawable, Killable, Moveable):
             v_x: int, 
             v_y: int, 
             color: int = None, 
-            size: int = None, 
-            health: int = None, 
-            shape: int = None) -> None:
+            size: int = 5, 
+            health: int = 1, 
+            shape: int = 'c') -> None:
         """
         Intiailizes the necessary values for a Moveable, Killable, Drawable, 
         object using those classes' init functions 
@@ -314,11 +307,7 @@ class Projectile(Drawable, Killable, Moveable):
         and 'c' for circle. This is due to behavior in Python with passing attributes 
         through super functions.
         """
-        # Default values
         color = color or Color.rand_color()
-        size = size or 5
-        health = health or 1
-        shape = shape or 'c'
 
         # Parent class initialization
         Drawable.__init__(self, x, y, color=color, size=size)
