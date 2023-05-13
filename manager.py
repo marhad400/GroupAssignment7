@@ -20,7 +20,7 @@ class ScoreTable:
             screen, 
             self.font, 
             self.targets_destroyed, self.projectiles_used, self.score,
-            Color.WHITE, Color.RED
+            Color.RED, Color.WHITE
             )
 
 class Manager:

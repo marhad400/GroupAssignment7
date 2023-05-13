@@ -27,6 +27,8 @@ class Artist:
 
         Parameters
         ----------
+        surface : pygame.Surface
+            The surface to draw the object onto
         x : int
             The x coordinate of the object
         y : int 
@@ -45,7 +47,7 @@ class Artist:
         *shape_to_draw, function_to_use = {
             # Rectangle draw takes coords and side lengths
             's': ((x, y, size, size), pygame.draw.rect),
-            # Polygon draw takes coords of the points of the polygon (3 for triangle)
+            # Polygon draw takes 2 coords of the points of the triangle
             't':  ((
                     (x, y), 
                     (x - size//2, y + size//2),
@@ -60,24 +62,112 @@ class Artist:
         function_to_use(surface, color, *shape_to_draw)
     
     @staticmethod
-    def draw_cannon(surface, x, y, angle, pow, color):
-        gun_shape = []
-        vec_1 = np.array([int(5*np.cos(angle - np.pi/2)), int(5*np.sin(angle - np.pi/2))])
-        vec_2 = np.array([int(pow*np.cos(angle)), int(pow*np.sin(angle))])
+    def draw_cannon(
+            surface: pygame.Surface, 
+            x: int, y: int, 
+            angle: int, pow: int, 
+            color: tuple) -> None:
+        """
+        Draws the cannon based on its parameters
+
+        This function uses the angle and power to determine the size and angle
+        of the cannon
+
+        Parameters
+        ----------
+        surface : pygame.Surface
+            The surface to draw the cannon onto
+        x : int
+            The x coordinate of the object
+        y : int 
+            The y coordinate of the object
+        angle : int
+            The cannon's angle
+        pow : int
+            The power of the cannon (depending on how long the user held for)
+        color : tuple
+            A tuple representing the (R, G, B) values of the object's color
+        """
+
+        vec_1 = np.array(
+                [
+                int(5*np.cos(angle - np.pi/2)), 
+                int(5*np.sin(angle - np.pi/2))
+                ]
+            )
+        vec_2 = np.array(
+                [
+                    int(pow*np.cos(angle)), 
+                    int(pow*np.sin(angle))
+                ]
+            )
+        
         gun_pos = np.array([x, y])
         
-        gun_shape.append((gun_pos + vec_1).tolist())
-        gun_shape.append((gun_pos + vec_1 + vec_2).tolist())
-        gun_shape.append((gun_pos + vec_2 - vec_1).tolist())
-        gun_shape.append((gun_pos - vec_1).tolist())
+        gun_shape = []
+        gun_shape.append(
+            (gun_pos + vec_1).tolist()
+        )
+        gun_shape.append(
+            (gun_pos + vec_1 + vec_2).tolist()
+        )
+        gun_shape.append(
+            (gun_pos + vec_2 - vec_1).tolist()
+        )
+        gun_shape.append(
+            (gun_pos - vec_1).tolist()
+        )
         
         pygame.draw.polygon(surface, color, gun_shape)
 
     @staticmethod
-    def draw_score(surface, font, targets_destroyed, projectiles_used, score, primary_color, secondary_color):
+    def draw_score(
+            surface: pygame.Surface, 
+            font: pygame.font.Font, 
+            targets_destroyed: int, projectiles_used: int, score: int, 
+            primary_color: tuple, secondary_color: tuple) -> None:
+        """
+        Draws the score table based on its parameters
+
+        This function uses the font, scores, and colors to draw the score table
+
+        Parameters
+        ----------
+        surface : pygame.Surface
+            The surface to draw the cannon onto
+        font : pygame.font
+            The font to use for the text
+        targets_destroyed : int
+            The number of targets destroyed by the player
+        projectiles_used : int
+            The number of projectiles used
+        score : int
+            The player's total score, determined by targets and projectiles
+        primary_color : tuple
+            The color to use for the score
+            The color to use for the statistics
+        secondary_color : tuple
+            The color to use for the statistics
+
+        """
         score_surf = []
-        score_surf.append(font.render("Destroyed: {}".format(targets_destroyed), True, primary_color))
-        score_surf.append(font.render("Balls used: {}".format(projectiles_used), True, primary_color))
-        score_surf.append(font.render("Total: {}".format(score), True, secondary_color))
+        
+        score_surf.append(
+            font.render(
+            "Destroyed: {}".format(targets_destroyed), 
+            True, 
+            secondary_color)
+        )
+        score_surf.append(
+            font.render("Balls used: {}".format(projectiles_used), 
+            True, 
+            secondary_color)
+        )
+        score_surf.append(
+            font.render("Total: {}".format(score), 
+            True, 
+            primary_color)
+        )
+
         for i in range(3):
             surface.blit(score_surf[i], [10, 10 + 30*i])
