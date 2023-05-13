@@ -18,7 +18,7 @@ class ScoreTable:
         score_surf = []
         score_surf.append(self.font.render("Destroyed: {}".format(self.targets_destroyed), True, Color.WHITE))
         score_surf.append(self.font.render("Balls used: {}".format(self.projectiles_used), True, Color.WHITE))
-        score_surf.append(self.font.render("Total: {}".format(self.score()), True, Color.RED))
+        score_surf.append(self.font.render("Total: {}".format(self.score), True, Color.RED))
         for i in range(3):
             screen.blit(score_surf[i], [10, 10 + 30*i])
 
@@ -44,8 +44,6 @@ class Manager:
         self.screen = pygame.display.set_mode(self.screen_size)
         pygame.display.set_caption("The Gun of Khiryanov II")
 
-        self.screen.fill(Color.BLACK)
-
     def update_display(self):
         pygame.display.flip()
 
@@ -67,6 +65,8 @@ class Manager:
         self.target_master = TargetMaster()
 
     def process_states(self):
+        self.screen.fill(Color.BLACK)
+
         self.handle_events()
 
         self.handle_angles()
@@ -78,6 +78,8 @@ class Manager:
         self.handle_dead_projectiles()
 
         self.handle_collisions()
+
+        self.handle_new_missions()
 
         self.handle_drawing()
 
@@ -106,57 +108,57 @@ class Manager:
         keys_pressed = pygame.key.get_pressed()
         for key, move_func in key_to_move.items():
             if keys_pressed[key]:
-                move_func()
+                move_func(self.screen_size)
+        
+        self.user_cannon.gain()
 
-        if self.artificial_cannon.determine_move(self.user_cannon):
+        if self.artificial_cannon.determine_move(self.user_cannon, self.screen_size):
             self.artificial_cannon.end_thread()
         else:
             self.artificial_cannon.start_thread()
 
     def handle_target_movement(self):
-        self.target_master.move_all()
+        self.target_master.move_all(self.screen_size)
 
     def handle_projectile_movement(self):
-        for projectile in self.user_cannon.fired_projectiles:
-            projectile.move(grav=2)
+        self.user_cannon.projectile_master.move_all(self.screen_size)
+        self.artificial_cannon.projectile_master.move_all(self.screen_size)
 
-        for projectile in self.artificial_cannon.fired_projectiles:
-            projectile.move(grav=2)
 
     def handle_dead_projectiles(self):
-        self.user_cannon.remove_dead()
-        self.artificial_cannon.remove_dead()
+        self.user_cannon.projectile_master.remove_dead()
+        self.artificial_cannon.projectile_master.remove_dead()
 
     def handle_collisions(self):
         self.handle_target_collisions()
         self.handle_user_collision()
     
     def handle_target_collisions(self):
-        for projectile in self.user_cannon.fired_projectiles:
+        for projectile in self.user_cannon.projectile_master.projectile_list:
             for target in self.target_master.target_list:
                 if target.check_collision(projectile):
                     self.target_master.target_list.remove(target)
                     self.score_t.targets_destroyed += 1
                 
     def handle_user_collision(self):
-        for projectile in self.artificial_cannon.fired_projectiles:
+        for projectile in self.artificial_cannon.projectile_master.projectile_list:
             if self.user_cannon.check_collision(projectile):
                 self.user_cannon.deal()
 
     def handle_drawing(self):
         self.draw_projectiles()
         self.draw_targets()
-        self.draw_guns()
+        self.draw_cannons()
         self.draw_score()
 
     def draw_projectiles(self):
-        for projectile in self.user_cannon.fired_projectiles:
-            projectile.draw(self.screen)
+        self.user_cannon.projectile_master.draw_all(self.screen)
+        self.artificial_cannon.projectile_master.draw_all(self.screen)
 
     def draw_targets(self):
         self.target_master.draw_all(self.screen)
 
-    def draw_guns(self):
+    def draw_cannons(self):
         self.user_cannon.draw(self.screen)
         self.artificial_cannon.draw(self.screen)
 
@@ -177,6 +179,10 @@ class Manager:
                     self.user_cannon.strike()
                     self.score_t.projectiles_used += 1
 
+    def handle_new_missions(self):
+        if not self.target_master.target_list and not self.user_cannon.projectile_master.projectile_list:
+            self.create_mission()
+
     def create_mission(self):
         for _ in range(self.num_targets):
             self.target_master.create_random_target(
@@ -190,5 +196,5 @@ class Manager:
 
             self.process_states()
 
-m = Manager()
+m = Manager(num_targets=10)
 m.game_loop()

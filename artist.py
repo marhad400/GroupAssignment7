@@ -1,6 +1,6 @@
 import pygame
 
-from color import Color
+import numpy as np
 
 class Artist:
     """A class containing static definitions for draw functions
@@ -58,3 +58,17 @@ class Artist:
 
         # Run the given function with the given parameters
         function_to_use(surface, color, *shape_to_draw)
+    
+    @staticmethod
+    def draw_cannon(surface, x, y, angle, pow, color):
+        gun_shape = []
+        vec_1 = np.array([int(5*np.cos(angle - np.pi/2)), int(5*np.sin(angle - np.pi/2))])
+        vec_2 = np.array([int(pow*np.cos(angle)), int(pow*np.sin(angle))])
+        gun_pos = np.array([x, y])
+        
+        gun_shape.append((gun_pos + vec_1).tolist())
+        gun_shape.append((gun_pos + vec_1 + vec_2).tolist())
+        gun_shape.append((gun_pos + vec_2 - vec_1).tolist())
+        gun_shape.append((gun_pos - vec_1).tolist())
+        
+        pygame.draw.polygon(surface, color, gun_shape)

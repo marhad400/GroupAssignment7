@@ -154,14 +154,14 @@ class MovingTarget(Moveable, Target):
         Moveable.__init__(self, v_x, v_y)
         Target.__init__(self, x, y, color, size, health, shape)
     
-    def move(self):
+    def move(self, screen_size):
         """Changes the x and y position of the object depending on the velocities"""
         self.x += self.v_x
         self.y += self.v_y
 
-        self.check_corners()
+        self.check_corners(screen_size)
     
-    def check_corners(self) -> None:
+    def check_corners(self, screen_size) -> None:
         """
         Implements inelastic rebound when the projectile hits the screen's edge
 
@@ -184,9 +184,9 @@ class MovingTarget(Moveable, Target):
             self.v_y = int(self.v_y)
 
         # If the projectile hits the right edge of the scrteen
-        elif self.x > Color.SCREEN_SIZE[0] - self.size:
+        elif self.x > screen_size[0] - self.size:
             # Make sure we don't go off-screen
-            self.x = Color.SCREEN_SIZE[0] - self.size
+            self.x = screen_size[0] - self.size
 
             # Reverse the x velocity and calculate the new velocities (decreased)
             # based on the reflection parameters
@@ -204,9 +204,9 @@ class MovingTarget(Moveable, Target):
             self.v_y = -int(self.v_y)
         
         # If the projectile hits the bottom of the screen
-        elif self.y > Color.SCREEN_SIZE[1] - self.size:
+        elif self.y > screen_size[1] - self.size:
             # Make sure we don't go off-screen
-            self.y = Color.SCREEN_SIZE[1] - self.size
+            self.y = screen_size[1] - self.size
 
             # Reverse the y velocity and calculate the new velocities (decreased)
             # based on the reflection parameters
@@ -289,7 +289,7 @@ class Projectile(Drawable, Killable, Moveable):
 
     def move(
             self, 
-            time: int = 1, grav: int = 0) -> None:
+            screen_size, time: int = 1, grav: int = 0) -> None:
         """
         Moves the projectile based on its velocity and the effect of gravity
 
@@ -308,11 +308,11 @@ class Projectile(Drawable, Killable, Moveable):
         self.y += time * self.v_y
 
         # Check screen collisions to make sure we don't go off-screen
-        self.check_corners()
+        self.check_corners(screen_size)
 
         # If the projectile is moving slowly at the bottom of the screen
         # it has lost its health
-        if self.v_x**2 + self.v_y**2 < 2**2 and self.y > Color.SCREEN_SIZE[1] - 2*self.size:
+        if self.v_x**2 + self.v_y**2 < 2**2 and self.y > screen_size[1] - 2*self.size:
             self.kill()
 
     def draw(self, surface: Surface) -> None:
@@ -331,7 +331,7 @@ class Projectile(Drawable, Killable, Moveable):
     
     def check_corners(
             self, 
-            refl_ort: float = 0.8, refl_par: float = 0.9) -> None:
+            screen_size, refl_ort: float = 0.8, refl_par: float = 0.9) -> None:
         """
         Implements inelastic rebound when the projectile hits the screen's edge
 
@@ -354,9 +354,9 @@ class Projectile(Drawable, Killable, Moveable):
             self.v_y = int(self.v_y * refl_par)
 
         # If the projectile hits the right edge of the scrteen
-        elif self.x > Color.SCREEN_SIZE[0] - self.size:
+        elif self.x > screen_size[0] - self.size:
             # Make sure we don't go off-screen
-            self.x = Color.SCREEN_SIZE[0] - self.size
+            self.x = screen_size[0] - self.size
 
             # Reverse the x velocity and calculate the new velocities (decreased)
             # based on the reflection parameters
@@ -374,9 +374,9 @@ class Projectile(Drawable, Killable, Moveable):
             self.v_y = -int(self.v_y * refl_ort)
         
         # If the projectile hits the bottom of the screen
-        elif self.y > Color.SCREEN_SIZE[1] - self.size:
+        elif self.y > screen_size[1] - self.size:
             # Make sure we don't go off-screen
-            self.y = Color.SCREEN_SIZE[1] - self.size
+            self.y = screen_size[1] - self.size
 
             # Reverse the y velocity and calculate the new velocities (decreased)
             # based on the reflection parameters

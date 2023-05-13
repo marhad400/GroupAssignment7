@@ -34,20 +34,21 @@ class TargetMaster:
             chosen_type = random.choice(static_target_type)
         
         created_target = chosen_type(**params)
+
         self.target_list.append(created_target)
 
     def calculate_target_size(self, score):
         score = max(0, score)
-        upper = max(1, 30 - 2 * score)
-        lower = 30 - score
+        lower = max(1, 30 - 2 * score)
+        upper = 30 - score
 
         return random.randint(lower, upper)
 
     def draw_all(self, surface):
         [target.draw(surface) for target in self.target_list]
     
-    def move_all(self):
-        [target.move() for target in self.target_list if isinstance(target, MovingTarget)]
+    def move_all(self, screen_size):
+        [target.move(screen_size) for target in self.target_list if isinstance(target, MovingTarget)]
 
 class MovingSquare(MovingTarget):
     

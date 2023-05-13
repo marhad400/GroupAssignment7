@@ -9,8 +9,6 @@ class Color:
     BLUE = (0, 0, 255)
     LIGHT_BLUE = (50, 100, 230)
 
-    SCREEN_SIZE = (800, 600)
-
     @staticmethod
     def rand_color() -> tuple:
         return (randint(0, 255), randint(0, 255), randint(0, 255))
