@@ -8,15 +8,14 @@ class ProjectileMaster:
     def __init__(self):
         self.projectile_list: list[Projectile] = []
 
-    def create_random_projectile(self, x, y, vel, angle):
+    def create_projectile(self, x, y, vel, angle, chosen_type: str = None):
 
-        projectile_types = [
-            CircleProjectile,
-            SquareProjectile,
-            TriangleProjectile
-        ]
+        projectile_types = {
+            'c': CircleProjectile,
+            's': SquareProjectile,
+            't': TriangleProjectile
+        }
 
-        chosen_type: Projectile = None
         params: dict = {
             'x': x,
             'y': y,
@@ -25,7 +24,11 @@ class ProjectileMaster:
             'v_y': int(vel * np.sin(angle))
         }
         
-        chosen_type = random.choice(projectile_types)
+        if chosen_type:
+            chosen_type = projectile_types[chosen_type]
+        else:
+            chosen_type = random.choice(list(projectile_types.values()))
+
         created_projectile = chosen_type(**params)
         
         self.projectile_list.append(created_projectile)

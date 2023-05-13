@@ -106,10 +106,20 @@ class Manager:
             pygame.K_s: self.user_cannon.move_down
         }
 
+        type_switcher = {
+            pygame.K_1: 's',
+            pygame.K_2: 'c',
+            pygame.K_3: 't'
+        }
+
         keys_pressed = pygame.key.get_pressed()
         for key, move_func in key_to_move.items():
             if keys_pressed[key]:
                 move_func(self.screen_size)
+        
+        for key, chosen_type in type_switcher.items():
+            if keys_pressed[key]:
+                self.user_cannon.change_chosen(chosen_type)
         
         self.user_cannon.gain()
 

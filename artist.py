@@ -52,7 +52,7 @@ class Artist:
                     (x + size//2, y + size//2)
                 ), pygame.draw.polygon),
             # Circle draw takes a tuple of coords and a radius
-            'c': ((x, y), size, pygame.draw.circle),
+            'c': ((x, y), size/2, pygame.draw.circle),
         }[shape[0]] # Choose which shape to draw and function to use depending on the
         # first character of the passed string
 

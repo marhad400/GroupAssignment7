@@ -1,6 +1,5 @@
 import numpy as np
 from color import Color
-from inherited import Projectile
 from abstract import Moveable, Drawable, Killable
 from artist import Artist
 from projectiles import ProjectileMaster
@@ -26,7 +25,12 @@ class Cannon(Drawable, Killable):
         self.active = False
         self.pow = min_pow
 
+        self.chosen_type = 'c'
+
         self.projectile_master = ProjectileMaster()
+
+    def change_chosen(self, chosen):
+        self.chosen_type = chosen
 
     def activate(self):
         '''
@@ -47,7 +51,7 @@ class Cannon(Drawable, Killable):
         '''
         vel = vel or self.pow
         
-        self.projectile_master.create_random_projectile(self.x, self.y, vel, self.angle)
+        self.projectile_master.create_projectile(self.x, self.y, vel, self.angle, self.chosen_type)
         self.pow = self.min_pow
         self.active = False
                 
@@ -65,7 +69,7 @@ class Cannon(Drawable, Killable):
 
 class MovingCannon(Moveable, Cannon):
     
-    def __init__(self, v_x=5, v_y=5, *args, **kwargs):
+    def __init__(self, v_x=6, v_y=6, *args, **kwargs):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
@@ -99,7 +103,7 @@ class ArtificialCannon(MovingCannon):
     '''
     Tank class. Manages its renderring, movement, and striking. 
     '''
-    def __init__(self, v_x = 2, v_y = 2, min_pow = 30, *args, **kwargs):
+    def __init__(self, v_x = 3, v_y = 3, min_pow = 30, *args, **kwargs):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
