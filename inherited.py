@@ -382,3 +382,54 @@ class Projectile(Drawable, Killable, Moveable):
             # based on the reflection parameters
             self.v_x = int(self.v_x * refl_par)
             self.v_y = -int(self.v_y * refl_ort)
+
+class Bomb(Drawable, Killable, Moveable):
+    def __init__(
+            self, 
+            x: int, 
+            y: int, 
+            v_y: int,  
+            size: int = 40, 
+            health: int = 1,
+            color: int = None, 
+            shape: int = 'c') -> None:
+        
+        color = color or Color.BLACK()
+
+        # Parent class initialization
+        Drawable.__init__(self, x, y, color=color, size=size)
+        Killable.__init__(self, health=health)
+        Moveable.__init__(self, v_y, v_x=0)
+        # Shape initialization
+        self.shape = shape
+
+    def move(
+            self,
+            screen_size, time: int = 1, grav: int = 0) -> None:
+        
+        #Add gravity
+        self.v_y += grav
+
+        # Change y-position based on gravity
+        self.y += time * self.v_y
+
+    def draw(self, surface: Surface) -> None:
+
+        Artist.draw(
+            surface,
+            self.x, self.y,
+            self.color, self.size, self.shape
+        )
+    
+    def check_bottom(self):
+        
+        #If the projectile reaches the bottom of the screen
+        at_bottom = False
+        if self.y < self.size:
+            at_bottom = True
+
+        return at_bottom
+    
+    def explode(self):
+        if self.check_bottom():
+            self.kill()
