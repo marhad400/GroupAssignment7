@@ -140,7 +140,7 @@ class ArtificialCannon(MovingCannon):
 
     def keep_striking(self):
         while self.strike_thread:
-            time.sleep(1)
+            time.sleep(0.5)
             if self.strike_thread:
                 self.strike(vel=60)
 
