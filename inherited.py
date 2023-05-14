@@ -388,24 +388,23 @@ class Bomb(Drawable, Killable, Moveable):
             self, 
             x: int, 
             y: int, 
-            v_y: int,  
+            v_y: int = None,
+            v_x: int = 0,  
             size: int = 40, 
             health: int = 1,
             color: int = None, 
             shape: int = 'c') -> None:
         
-        color = color or Color.BLACK()
+        color = color or Color.RED
 
         # Parent class initialization
         Drawable.__init__(self, x, y, color=color, size=size)
         Killable.__init__(self, health=health)
-        Moveable.__init__(self, v_y, v_x=0)
+        Moveable.__init__(self, v_y=v_y, v_x=v_x)
         # Shape initialization
         self.shape = shape
-
-    def move(
-            self,
-            screen_size, time: int = 1, grav: int = 0) -> None:
+    
+    def move(self, time: int = 1, grav: int = 0) -> None:
         
         #Add gravity
         self.v_y += grav
@@ -421,15 +420,15 @@ class Bomb(Drawable, Killable, Moveable):
             self.color, self.size, self.shape
         )
     
-    def check_bottom(self):
+    def check_bottom(self, screen_size):
         
         #If the projectile reaches the bottom of the screen
         at_bottom = False
-        if self.y < self.size:
+        if self.y < screen_size[1] -self.size:
             at_bottom = True
 
         return at_bottom
     
-    def explode(self):
-        if self.check_bottom():
+    def explode(self, screen_size):
+        if self.check_bottom(screen_size):
             self.kill()

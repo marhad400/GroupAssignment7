@@ -2,7 +2,7 @@ from cannon import MovingCannon, ArtificialCannon
 from targets import TargetMaster
 from color import Color
 from artist import Artist
-from bombs import BombMaster
+from bomb_master import BombMaster
 
 import pygame
 
@@ -69,15 +69,18 @@ class Manager:
         self.bomb_master = BombMaster()
 
     def process_states(self):
-        self.screen.fill(Color.GRAY)
+        self.screen.fill(Color.BLACK)
 
         self.handle_events()
 
         self.handle_angles()
 
+        self.spawn_bombs()
+
         self.handle_cannon_movement()
         self.handle_target_movement()
         self.handle_projectile_movement()
+        self.handle_bomb_movement()
 
         self.handle_dead_projectiles()
 
@@ -144,7 +147,7 @@ class Manager:
         self.artificial_cannon.projectile_master.remove_dead()
 
     def handle_bomb_movement(self):
-        self.bomb_master.move_all(self.screen_size)
+        self.bomb_master.move_all()
 
     def handle_exploded_bombs(self):
         self.bomb_master.remove_exploded()
@@ -213,6 +216,9 @@ class Manager:
                 self.screen_size,
                 self.target_master.calculate_target_size(self.score_t.score),
             )
+    
+    def spawn_bombs(self):
+        self.bomb_master.create_bomb(self.screen_size, v_y=5)
 
     def game_loop(self):
         while not self.done:
