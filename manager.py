@@ -2,7 +2,6 @@ from cannon import MovingCannon, ArtificialCannon
 from targets import TargetMaster
 from color import Color
 from artist import Artist
-from bomb_master import BombMaster
 
 import pygame
 
@@ -66,8 +65,6 @@ class Manager:
 
         self.target_master = TargetMaster()
 
-        self.bomb_master = BombMaster()
-
     def process_states(self):
         self.screen.fill(Color.BLACK)
 
@@ -75,12 +72,12 @@ class Manager:
         
         self.handle_angles()
 
-        self.spawn_bombs()
 
         self.handle_cannon_movement()
         self.handle_target_movement()
-        self.handle_projectile_movement()
+        self.spawn_bombs()
         self.handle_bomb_movement()
+        self.handle_projectile_movement()
 
         self.handle_dead_projectiles()
 
@@ -147,10 +144,12 @@ class Manager:
         self.artificial_cannon.projectile_master.remove_dead()
 
     def handle_bomb_movement(self):
-        self.bomb_master.move_all()
+        for target in self.target_master.target_list:
+            target.bomb_master.move_all()
 
     def handle_exploded_bombs(self):
-        self.bomb_master.remove_exploded()
+        for target in self.target_master.target_list:
+            target.bomb_master.remove_exploded()
 
     def handle_collisions(self):
         self.handle_target_collisions()
@@ -187,7 +186,8 @@ class Manager:
         self.artificial_cannon.draw(self.screen)
 
     def draw_bombs(self):
-        self.bomb_master.draw_all(self.screen)
+        for target in self.target_master.target_list:
+            target.bomb_master.draw_all(self.screen)
 
     def draw_score(self):
         self.score_t.draw(self.screen)
@@ -218,7 +218,11 @@ class Manager:
             )
     
     def spawn_bombs(self):
-        self.bomb_master.create_bomb(self.screen_size, v_y=5)
+        for target in self.target_master.target_list:
+
+            target.bomb_master.create_bomb(
+                target.x, target.y + target.size, v_y=5
+                )
 
     def game_loop(self):
         while not self.done:
