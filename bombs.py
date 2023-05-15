@@ -218,7 +218,8 @@ class Bomb(Drawable, Killable, Moveable):
 
     def check_explode(self, screen_y: int, user: Drawable) -> None:
         """
-        Checks if the bomb needs to explode then explodes the bomb, instantly killing it
+        Checks if the bomb needs to explode then explodes the bomb, instantly 
+        killing it
         
         Parameters
         ----------

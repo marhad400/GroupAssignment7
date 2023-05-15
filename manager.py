@@ -279,7 +279,10 @@ class Manager:
     def handle_exploded_bombs(self) -> None:
         """Removes dead bombs from the screen"""
         for target in self.target_master.target_list:
-            target.bomb_master.remove_exploded(self.screen_size[1], self.user_cannon)
+            target.bomb_master.remove_exploded(
+                                                self.screen_size[1], 
+                                                self.user_cannon
+                                            )
 
     def handle_collisions(self) -> None:
         """Handles target and user collisions by delagating to the respective function"""

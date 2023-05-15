@@ -41,7 +41,8 @@ class Cannon(Drawable, Killable):
     active : bool
         Whether or not the cannon is currently gaining power
     chosen_type : str
-        What type of projectile the cannon is currently firing (square, circle, triangle)
+        What type of projectile the cannon is currently firing (square, circle, 
+        triangle)
     projectile_master : ProjectileMaster
         The cannon's projectile master, in charge of controlling the projectiles 
         fired by this cannon
@@ -176,7 +177,8 @@ class MovingCannon(Moveable, Cannon):
     A Cannon is a Drawable (meaning it can be drawn to the screen) and is Killable
     (meaning it can take damage and die). This means we need to pass in all the
     attributes necessary for both a Drawable and Killable object. In addition,
-    this type of cannon can be moved around the screen (making it a Moveable as well).
+    this type of cannon can be moved around the screen (making it a Moveable as 
+    well).
 
     MovingCannon simply inherits from the abstract Moveable and the concrete Target        
 
@@ -203,7 +205,8 @@ class MovingCannon(Moveable, Cannon):
     active : bool
         Whether or not the cannon is currently gaining power
     chosen_type : str
-        What type of projectile the cannon is currently firing (square, circle, triangle)
+        What type of projectile the cannon is currently firing (square, circle, 
+        triangle)
     projectile_master : ProjectileMaster
         The cannon's projectile master, in charge of controlling the projectiles 
         fired by this cannon
@@ -319,7 +322,7 @@ class ArtificialCannon(MovingCannon):
             v_y: int = 3, 
             min_pow: int = 30, 
             *args, **kwargs) -> None:
-        """Initializes the MovingCannon attributes and sets the strike_thread to None"""
+        """Initializes the MovingCannon and sets the strike_thread to None"""
         super().__init__(v_x, v_y, min_pow = min_pow, *args, **kwargs)
 
         self.strike_thread = None
@@ -392,7 +395,7 @@ class ArtificialCannon(MovingCannon):
         """
         # While the strike_thread exists
         while self.strike_thread:
-            # Sleep for delay amount of time, then check if the thread exists agin
+            # Sleep for delay amount of time, check if the thread exists again
             # (It may have died since the start of checking)
             time.sleep(delay)
             if self.strike_thread:

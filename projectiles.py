@@ -48,8 +48,9 @@ class ProjectileMaster:
         angle : int
             The angle of the cannon (affects the v_x and v_y distribution)
         chosen_type : str
-            A string of characters 's', 't', or 'c' denoting whether the object is a
-            square, triangle, or circle. If it is not provided, it will be random
+            A string of characters 's', 't', or 'c' denoting whether the object 
+            is a square, triangle, or circle. If it is not provided, it will be 
+            random
         """
         
         # The possible projectile types and their chosen_type denotion
@@ -94,7 +95,8 @@ class ProjectileMaster:
     
     def move_all(self, screen_size: tuple) -> None:
         """
-        Simply loops through all the projectiles and moves them based on their velocity
+        Simply loops through all the projectiles and moves them based on their 
+        velocity
         
         Simply calls the projectile.move function on each projectile
 
@@ -103,7 +105,10 @@ class ProjectileMaster:
         screen_size : tuple
             The size of the screen
         """
-        [projectile.move(screen_size, grav=2) for projectile in self.projectile_list]
+        [
+            projectile.move(screen_size, grav = 2) 
+            for projectile in self.projectile_list
+        ]
     
     def remove_dead(self) -> None:
         """Removes dead projectiles from the projectile list"""
@@ -201,12 +206,14 @@ class Projectile(Drawable, Killable, Moveable):
 
         # If the projectile is moving slowly at the bottom of the screen
         # it has lost its health
-        if self.v_x**2 + self.v_y**2 < 2**2 and self.y > screen_size[1] - 2*self.size:
-            self.kill()
+        if self.v_x**2 + self.v_y**2 < 2**2:
+            if self.y > screen_size[1] - 2 * self.size:
+             self.kill()
 
     def draw(self, surface: Surface) -> None:
         """
-        Uses a static Artist draw function to draw the object to the given surface
+        Uses a static Artist draw function to draw the object to the given 
+        surface
         
         Parameters
         ----------

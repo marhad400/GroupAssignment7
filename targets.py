@@ -77,8 +77,8 @@ class TargetMaster:
             'size': target_size
         } 
 
-        # If the target should be moving, choose from the list of moving target types
-        # otherwise, choose a static target type
+        # If the target should be moving, choose from the list of moving target 
+        # types. Otherwise, choose a static target type
         if is_moving:
             chosen_type = random.choice(moving_target_type)
         else:
