@@ -49,7 +49,11 @@ class ScoreTable:
         """A property that calculates and returns the score"""
         return self.targets_destroyed - self.projectiles_used
 
-    def draw(self, surface: pygame.Surface, chosen_type: str = None):
+    def draw(
+            self, 
+            surface: pygame.Surface, 
+            chosen_type: str = None, 
+            health : int = None) -> None:
         """
         Draws the score table by delegating to the Artist draw_score method
 
@@ -57,6 +61,10 @@ class ScoreTable:
         ----------
         surface : pygame.Surface
             The surface to draw the table onto
+        chosen_type : str
+            The currently chosen projectile type
+        health : int
+            The user's health
         """
         Artist.draw_score(
             surface, 
@@ -65,9 +73,30 @@ class ScoreTable:
             self.projectiles_used, 
             self.score,
             chosen_type,
+            health,
             Color.RED, 
             Color.WHITE
             )
+    
+    def draw_game_over_screen(
+                        self,
+                        surface: pygame.Surface,
+                        game_over_text: str) -> None:
+        """
+        Draws the game over screen
+        
+        Parameters
+        ----------
+        surface : pygame.Surface
+            The surface to draw the game over screen onto
+        """
+        Artist.draw_death_screen(
+            surface, 
+            self.font, 
+            game_over_text,
+            self.score,
+            Color.RED
+        )
 
 class Manager:
     """
@@ -324,8 +353,13 @@ class Manager:
         """
         for artificial_cannon in self.artificial_cannons:
             for projectile in self.user_cannon.projectile_master.projectile_list:
+                
                 if artificial_cannon.check_collision(projectile):
                     artificial_cannon.deal()
+                    
+                    if not artificial_cannon.is_alive:
+                        self.artificial_cannons.remove(artificial_cannon)    
+                    
                     self.user_cannon.projectile_master.projectile_list.remove(projectile)
 
 
@@ -362,7 +396,11 @@ class Manager:
 
     def draw_score(self) -> None:
         """Draws the score table"""
-        self.score_t.draw(self.screen, self.user_cannon.chosen_type)
+        self.score_t.draw(
+                        self.screen, 
+                        self.user_cannon.chosen_type, 
+                        self.user_cannon.health
+                    )
 
     def handle_events(self) -> None:
         """Handles Pygame events"""
@@ -451,6 +489,34 @@ class Manager:
             self.clock.tick(self.refresh_rate)
 
             self.process_states()
+            self.check_game_over()
+        
+        self.game_over_loop()
+
+    def check_game_over(self):
+        if not self.user_cannon.is_alive or self.check_ac_death():
+            self.done = True
+
+    def check_ac_death(self):
+        return all([not ac.is_alive for ac in self.artificial_cannons])
+
+    def game_over_loop(self):
+        show_game_over = True
+        while show_game_over:
+
+            if not self.user_cannon.is_alive:
+                self.score_t.draw_game_over_screen(self.screen, "You Died!")
+
+            if self.check_ac_death():
+                self.score_t.draw_game_over_screen(self.screen, "You Won!")
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    show_game_over = False
+
+            self.update_display()
+        
         
         pygame.quit()
+
 

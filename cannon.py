@@ -52,7 +52,7 @@ class Cannon(Drawable, Killable):
             self, 
             x: int, 
             y: int, 
-            health: int = 1, 
+            health: int = 15, 
             color: tuple =None, 
             angle: int= 0, 
             max_pow: int = 50, 
@@ -251,7 +251,7 @@ class MovingCannon(Moveable, Cannon):
         self.y += move_y * self.v_y
         self.y = max(30, min(self.y, screen_size[1] - 30))
     
-    def move_right(self, screen_size: tuple):
+    def move_right(self, screen_size: tuple) -> None:
         """
         Delagates to the move function the parameters necessary to move right
 
@@ -264,7 +264,7 @@ class MovingCannon(Moveable, Cannon):
         """
         self.move(screen_size, 1, 0)
 
-    def move_left(self, screen_size: tuple):
+    def move_left(self, screen_size: tuple) -> None:
         """
         Delagates to the move function the parameters necessary to move left
 
@@ -277,7 +277,7 @@ class MovingCannon(Moveable, Cannon):
         """
         self.move(screen_size, -1, 0)
     
-    def move_up(self, screen_size: tuple):
+    def move_up(self, screen_size: tuple) -> None:
         """
         Delagates to the move function the parameters necessary to move up
 
@@ -290,7 +290,7 @@ class MovingCannon(Moveable, Cannon):
         """
         self.move(screen_size, 0, -1)
     
-    def move_down(self, screen_size: tuple):
+    def move_down(self, screen_size: tuple) -> None:
         """
         Delagates to the move function the parameters necessary to move down
 
@@ -411,7 +411,7 @@ class ArtificialCannon(MovingCannon):
                                                 )
             self.strike_thread.start()
         
-    def end_thread(self):
+    def end_thread(self) -> None:
         """Ends the thread by resetting strike_thread to None"""
         self.strike_thread = None
     

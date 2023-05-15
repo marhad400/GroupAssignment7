@@ -1,5 +1,6 @@
 import pygame
 
+from color import Color
 import numpy as np
 
 class Artist:
@@ -66,7 +67,8 @@ class Artist:
             surface: pygame.Surface, 
             x: int, 
             y: int, 
-            angle: int, pow: int, 
+            angle: int, 
+            pow: int, 
             color: tuple) -> None:
         """
         Draws the cannon based on its parameters
@@ -131,7 +133,8 @@ class Artist:
             targets_destroyed: int, 
             projectiles_used: int, 
             score: int, 
-            chosen_type : str,
+            chosen_type: str,
+            health: int,
             primary_color: tuple, 
             secondary_color: tuple) -> None:
         """
@@ -153,6 +156,8 @@ class Artist:
             The player's total score, determined by targets and projectiles
         chosen_type : str
             The user's currently chosen type
+        health : int
+            The user's health
         primary_color : tuple
             The color to use for the score
             The color to use for the statistics
@@ -200,6 +205,15 @@ class Artist:
             font.render(
                 f"Chosen: {chosen_type}",
                 True,
+                secondary_color
+            )
+        )
+
+        # The text for the user health
+        score_surf.append(
+            font.render(
+                f"Health: {health}",
+                True,
                 primary_color
             )
         )
@@ -211,4 +225,66 @@ class Artist:
                 [10, 10 + 30*i]\
             )
         
-        surface.blit(score_surf[-1], [surface.get_size()[1] - 50, 10])
+        surface.blit(score_surf[-2], [surface.get_size()[1] - 50, 10])
+        surface.blit(score_surf[-1], [surface.get_size()[1] - 50, 40])
+    
+    @staticmethod
+    def draw_death_screen(surface: pygame.Surface, font: pygame.font.Font, game_over_text: str, score: int, color: tuple) -> None:
+        """
+        Draws the death screen when the user dies
+        
+        Parameters
+        ----------
+        surface : pygame.Surface
+            The surface to draw the death screen over
+        font : pygame.font.Font
+            The font to use for the text
+        score : int
+            The player's score before they died
+        """
+        death_screen = pygame.Surface(surface.get_size())
+
+        death_screen.fill(Color.BLACK)
+
+        game_over_surface = font.render(
+                                        game_over_text, 
+                                        True, 
+                                        color
+                                    )
+        score_surface = font.render(
+                                        f"Final Score: {score}", 
+                                        True, 
+                                        color
+                                    )
+        to_exit = font.render(
+                                "Press any key to exit",
+                                True,
+                                Color.WHITE
+                            )
+
+        text_piece = [game_over_surface, score_surface, to_exit]
+
+        screen_center = [
+                        death_screen.get_size()[0]//2, 
+                        death_screen.get_size()[1]//2 - 30
+                    ]
+
+        # Place each text piece to the screen
+        for i in range(2):
+            death_screen.blit(
+                text_piece[i], 
+                (
+                    screen_center[0] - text_piece[i].get_width() // 2,
+                    screen_center[1] + 30 * i - text_piece[i].get_height() // 2
+                ) 
+            )
+
+        death_screen.blit(
+            text_piece[-1], 
+            (
+                screen_center[0] - text_piece[-1].get_width() // 2,
+                screen_center[1] + 30 * 3 - text_piece[i].get_height() // 2
+            )
+        )
+
+        surface.blit(death_screen, (0, 0))

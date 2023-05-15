@@ -61,7 +61,7 @@ class Drawable:
                     ]
                 )**0.5
         # The minimum acceptable non-collision distance
-        min_dist = self.size + other.size
+        min_dist = self.size + other.size + 10 # a small buffer
 
         # Whether or not the distance between the objects is less than the
         # minimum accepted distance
