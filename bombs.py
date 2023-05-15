@@ -3,13 +3,17 @@ from artist import Artist
 from pygame import Surface
 from color import Color
 
+import random
 
 class BombMaster:
     
     def __init__(self):
         self.bomb_list: list[Bomb] = []
 
-    def create_bomb(self, x, y, v_y):
+    def create_bomb(self, x, y, v_y, chance: int = 0):
+
+        if chance and random.randint(0, chance):
+            return 
 
         params: dict = {
             'x': x,
@@ -55,7 +59,6 @@ class Bomb(Drawable, Killable, Moveable):
         self.shape = shape
     
     def move(self, time: int = 1, grav: int = 0) -> None:
-        
         #Add gravity
         self.v_y += grav
 

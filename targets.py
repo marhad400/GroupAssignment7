@@ -1,7 +1,7 @@
 from abstract import Drawable, Killable, Moveable
 from color import Color
 from artist import Artist
-from bomb_master import BombMaster
+from bombs import BombMaster
 
 from pygame import Surface
 import random

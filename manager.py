@@ -3,7 +3,10 @@ from targets import TargetMaster
 from color import Color
 from artist import Artist
 
+import threading
 import pygame
+import time
+import random
 
 class ScoreTable:
     def __init__(self, targets_destroyed = 0, projectiles_used = 0):
@@ -35,6 +38,8 @@ class Manager:
 
         self.score_t = ScoreTable()
         self.num_targets = num_targets
+        self.bomb_spawning_thread = None
+        self.start_bomb_thread()
         
         self.update_display()
 
@@ -75,7 +80,6 @@ class Manager:
 
         self.handle_cannon_movement()
         self.handle_target_movement()
-        self.spawn_bombs()
         self.handle_bomb_movement()
         self.handle_projectile_movement()
 
@@ -217,12 +221,30 @@ class Manager:
                 self.target_master.calculate_target_size(self.score_t.score),
             )
     
-    def spawn_bombs(self):
-        for target in self.target_master.target_list:
-
-            target.bomb_master.create_bomb(
-                target.x, target.y + target.size, v_y=5
+    def start_bomb_thread(self):
+        if not self.bomb_spawning_thread:
+            self.bomb_spawning_thread = threading.Thread(
+                target=self.spawn_bombs, daemon=True
                 )
+            self.bomb_spawning_thread.start()
+    
+    def spawn_bombs(self):
+        while self.bomb_spawning_thread:
+            time.sleep(0.5)
+
+            if self.bomb_spawning_thread:
+                random.shuffle(self.target_master.target_list)
+                
+                for target in self.target_master.target_list:
+                    time.sleep(0.1)
+                    
+                    target.bomb_master.create_bomb(
+                        target.x, target.y + target.size, 5, 1
+                    )
+
+        
+    def end_bomb_thread(self):
+        self.bomb_spawning_thread = None
 
     def game_loop(self):
         while not self.done:
