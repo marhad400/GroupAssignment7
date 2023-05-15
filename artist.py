@@ -131,6 +131,7 @@ class Artist:
             targets_destroyed: int, 
             projectiles_used: int, 
             score: int, 
+            chosen_type : str,
             primary_color: tuple, 
             secondary_color: tuple) -> None:
         """
@@ -150,6 +151,8 @@ class Artist:
             The number of projectiles used
         score : int
             The player's total score, determined by targets and projectiles
+        chosen_type : str
+            The user's currently chosen type
         primary_color : tuple
             The color to use for the score
             The color to use for the statistics
@@ -161,25 +164,51 @@ class Artist:
         # The text for targets_destroyed
         score_surf.append(
             font.render(
-            "Destroyed: {}".format(targets_destroyed), 
-            True, 
-            secondary_color)
+                "Destroyed: {}".format(targets_destroyed), 
+                True, 
+                secondary_color
+            )
         )
 
         # The text for projectiles_used
         score_surf.append(
-            font.render("Balls used: {}".format(projectiles_used), 
-            True, 
-            secondary_color)
+            font.render(
+                "Balls used: {}".format(projectiles_used), 
+                True, 
+                secondary_color
+            )
         )
 
         # The text for the total score
         score_surf.append(
-            font.render("Total: {}".format(score), 
-            True, 
-            primary_color)
+            font.render(
+                "Total: {}".format(score), 
+                True, 
+                primary_color
+            )
+        )
+
+        # The test for the chosen type
+        if chosen_type == 's':
+            chosen_type = "Square"
+        if chosen_type == 'c':
+            chosen_type = "Circle"
+        if chosen_type == 't':
+            chosen_type = "Triangle"
+        
+        score_surf.append(
+            font.render(
+                f"Chosen: {chosen_type}",
+                True,
+                primary_color
+            )
         )
 
         # Place each text piece to the screen
         for i in range(3):
-            surface.blit(score_surf[i], [10, 10 + 30*i])
+            surface.blit(
+                score_surf[i], 
+                [10, 10 + 30*i]\
+            )
+        
+        surface.blit(score_surf[-1], [surface.get_size()[1] - 50, 10])

@@ -49,7 +49,7 @@ class ScoreTable:
         """A property that calculates and returns the score"""
         return self.targets_destroyed - self.projectiles_used
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface, chosen_type: str = None):
         """
         Draws the score table by delegating to the Artist draw_score method
 
@@ -64,6 +64,7 @@ class ScoreTable:
             self.targets_destroyed, 
             self.projectiles_used, 
             self.score,
+            chosen_type,
             Color.RED, 
             Color.WHITE
             )
@@ -169,14 +170,15 @@ class Manager:
         self.handle_target_movement() # targets
         self.handle_projectile_movement() # projectiles
         self.handle_bomb_movement() # bombs
-
-        # Handle dead objects
-        self.handle_exploded_bombs() # bombs
-        self.handle_dead_projectiles() # projectiles
         
         # Handle collisions
         self.handle_collisions()
 
+        # Handle dead objects
+        self.handle_exploded_bombs() # bombs
+        self.handle_dead_projectiles() # projectiles
+
+        # Handles new sets of target spawns
         self.handle_new_missions()
 
         # Draw everything to the screen
@@ -288,17 +290,21 @@ class Manager:
         """Handles target and user collisions by delagating to the respective function"""
         self.handle_target_collisions()
         self.handle_user_collision()
+        self.handle_artificial_collision()
     
     def handle_target_collisions(self) -> None:
         """
         Handles target collisions by checking if any projectile collided
-        with any target
+        with any target. The objects must agree on shape type
         """
         for projectile in self.user_cannon.projectile_master.projectile_list:
             for target in self.target_master.target_list:
+                
                 if target.check_collision(projectile):
-                    self.target_master.target_list.remove(target)
-                    self.score_t.targets_destroyed += 1
+                    
+                    if target.shape == projectile.shape:
+                        self.target_master.target_list.remove(target)
+                        self.score_t.targets_destroyed += 1
                 
     def handle_user_collision(self) -> None:
         """
@@ -310,6 +316,18 @@ class Manager:
                 if self.user_cannon.check_collision(projectile):
                     self.user_cannon.deal()
                     artificial_cannon.projectile_master.projectile_list.remove(projectile)
+    
+    def handle_artificial_collision(self) -> None:
+        """
+        Handles artificial cannon collisions by checking if any user
+        projectiles collided with the artificial cannon
+        """
+        for artificial_cannon in self.artificial_cannons:
+            for projectile in self.user_cannon.projectile_master.projectile_list:
+                if artificial_cannon.check_collision(projectile):
+                    artificial_cannon.deal()
+                    self.user_cannon.projectile_master.projectile_list.remove(projectile)
+
 
     def handle_drawing(self) -> None:
         """Handles drawing all the objects"""
@@ -344,9 +362,10 @@ class Manager:
 
     def draw_score(self) -> None:
         """Draws the score table"""
-        self.score_t.draw(self.screen)
+        self.score_t.draw(self.screen, self.user_cannon.chosen_type)
 
     def handle_events(self) -> None:
+        """Handles Pygame events"""
         for event in pygame.event.get():
 
             # If the user quits

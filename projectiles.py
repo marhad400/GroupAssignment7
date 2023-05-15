@@ -17,11 +17,20 @@ class ProjectileMaster:
     ----------
     projectile_list : list[Target]
         A list of all the projectiles created by this ProjectileMaster
+    projectile_types : list
+        A list of the possible types of projectiles
     """
 
     def __init__(self) -> None:
         """Initializes the empty projectile list"""
         self.projectile_list: list[Projectile] = []
+
+        # The possible projectile types and their chosen_type denotion
+        self.projectile_types = {
+            'c': CircleProjectile,
+            's': SquareProjectile,
+            't': TriangleProjectile
+        }
 
     def create_projectile(
             self, 
@@ -52,13 +61,6 @@ class ProjectileMaster:
             is a square, triangle, or circle. If it is not provided, it will be 
             random
         """
-        
-        # The possible projectile types and their chosen_type denotion
-        projectile_types = {
-            'c': CircleProjectile,
-            's': SquareProjectile,
-            't': TriangleProjectile
-        }
 
         # The params to create the projectile with
         params: dict = {
@@ -71,9 +73,9 @@ class ProjectileMaster:
         
         # A projectile of the chosen type, or a random projectile
         if chosen_type:
-            chosen_type = projectile_types[chosen_type]
+            chosen_type = self.projectile_types[chosen_type]
         else:
-            chosen_type = random.choice(list(projectile_types.values()))
+            chosen_type = random.choice(list(self.projectile_types.values()))
 
 
         # Create and store the projectile

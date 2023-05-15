@@ -17,11 +17,27 @@ class TargetMaster:
     ----------
     target_list : list[Target]
         A list of all the targets created by this TargetMaster
+    moving_target_type : list
+        A list of the moveable types of targets
+    static_target_type : list
+        A list of the static types of targets
     """
 
     def __init__(self) -> None:
         """Initializes the empty target list"""
         self.target_list: list[Target] = []
+
+        # The types of targets available
+        self.moving_target_type = [
+            MovingSquare, 
+            MovingTriangle, 
+            MovingCircle 
+        ]
+        self.static_target_type = [
+            StaticSquare,
+            StaticTriangle,
+            StaticCircle
+        ]
 
     def create_random_target(
             self, 
@@ -56,18 +72,6 @@ class TargetMaster:
         # Determine whether target should be moving (if it wasn't provided)
         is_moving = is_moving if is_moving is not None else bool(random.randint(0, 1))
 
-        # The types of targets available
-        moving_target_type = [
-            MovingSquare, 
-            MovingTriangle, 
-            MovingCircle 
-        ]
-        static_target_type = [
-            StaticSquare,
-            StaticTriangle,
-            StaticCircle
-        ]
-
         chosen_type: Target = None
 
         # The parameters provided or generated
@@ -80,9 +84,9 @@ class TargetMaster:
         # If the target should be moving, choose from the list of moving target 
         # types. Otherwise, choose a static target type
         if is_moving:
-            chosen_type = random.choice(moving_target_type)
+            chosen_type = random.choice(self.moving_target_type)
         else:
-            chosen_type = random.choice(static_target_type)
+            chosen_type = random.choice(self.static_target_type)
         
         # Create and store the target
         created_target = chosen_type(**params)
