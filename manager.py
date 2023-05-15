@@ -36,11 +36,11 @@ class Manager:
 
         self.score_t = ScoreTable()
         self.num_targets = num_targets
-
+        
         self.update_display()
 
     def init_pygame(self):
-        pygame.init()
+        pygame.display.init()
         pygame.font.init()
 
         self.screen = pygame.display.set_mode(self.screen_size)
@@ -72,7 +72,7 @@ class Manager:
         self.screen.fill(Color.BLACK)
 
         self.handle_events()
-
+        
         self.handle_angles()
 
         self.spawn_bombs()
