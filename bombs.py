@@ -10,9 +10,9 @@ class BombMaster:
     def __init__(self):
         self.bomb_list: list[Bomb] = []
 
-    def create_bomb(self, x, y, v_y, chance: int = 0):
+    def create_bomb(self, x, y, v_y, chance: float = 0):
 
-        if chance and random.randint(0, chance):
+        if chance and random.random() > chance:
             return 
 
         params: dict = {
