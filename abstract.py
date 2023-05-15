@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 class Drawable:
-    """A class representing an objects ability to be drawed onto the screen
+    """
+    A class representing an objects ability to be drawed onto the screen
 
     Simply includes an empty definition for the draw function, and the necessary
-    attributes for a drawable object
+    attributes for a drawable object. Also contains a checker function for
+    collisions.
     
     Parameters
     ----------
@@ -23,8 +25,10 @@ class Drawable:
 
     def __init__(
             self, 
-            x: int, y: int, 
-            color: tuple, size: int) -> None:
+            x: int, 
+            y: int, 
+            color: tuple, 
+            size: int) -> None:
         """Initializes the necessary attributes for a drawable object"""
         self.x, self.y = x, y
         self.color = color
@@ -34,13 +38,13 @@ class Drawable:
         """An empty definition for a sample draw function"""
         pass
 
-    def check_collision(self, projectile: Drawable) -> bool:
+    def check_collision(self, other: Drawable) -> bool:
         """
         Checks if a collision occured between this object and another Drawable
         
         Parameters
         ----------
-        projectile : Drawable
+        other : Drawable
             A Drawable object that may have collided with the object
 
         Returns
@@ -52,12 +56,12 @@ class Drawable:
         # The root of the sum of the difference of the x's squared and y's squared 
         dist = sum(
                     [
-                        (self.x - projectile.x)**2, 
-                        (self.y - projectile.y)**2
+                        (self.x - other.x)**2, 
+                        (self.y - other.y)**2
                     ]
                 )**0.5
         # The minimum acceptable non-collision distance
-        min_dist = self.size + projectile.size
+        min_dist = self.size + other.size
 
         # Whether or not the distance between the objects is less than the
         # minimum accepted distance
@@ -72,6 +76,7 @@ class Moveable:
     Parameters
     ----------
     v_x : int
+
         The object's velocity in the x direction
     v_y : int 
         The object's velocity in the y direction
@@ -79,7 +84,8 @@ class Moveable:
 
     def __init__(
             self, 
-            v_x: int, v_y: int) -> None:
+            v_x: int, 
+            v_y: int) -> None:
         """Initializes the necessary attributes for a moveable object"""
         self.v_x, self.v_y = v_x, v_y
     
@@ -105,8 +111,8 @@ class Killable:
         is killed after a single hit.
     """
 
-    def __init__(self, health: int = 1) -> None:
-        """Initializes the health to the provided health or a default of 1"""
+    def __init__(self, health: int) -> None:
+        """Initializes the health to the provided health"""
         self.health = health
     
     def deal(self, damage: int = 1) -> None:

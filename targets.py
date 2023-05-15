@@ -7,13 +7,56 @@ from pygame import Surface
 import random
 
 class TargetMaster:
+    """
+    Implements methods for game-wide target checking
 
-    def __init__(self):
+    Introduces methods for creating random targets and maintaining existing 
+    targets (drawing them and moving them)
+    
+    Attributes
+    ----------
+    target_list : list[Target]
+        A list of all the targets created by this TargetMaster
+    """
+
+    def __init__(self) -> None:
+        """Initializes the empty target list"""
         self.target_list: list[Target] = []
 
-    def create_random_target(self, screen_size, target_size, x = None, y = None, is_moving: bool = None):
+    def create_random_target(
+            self, 
+            screen_size: tuple, 
+            target_size: int, 
+            x: int = None, 
+            y: int = None, 
+            is_moving: bool = None) -> None:
+        """
+        Creates a random target given its parameters (or lack thereof)
+
+        This function checks if the input parameters have been predetermined,
+        or generates them randomly.
+        The generated target is added to the target list, not returned
+
+        Parameters
+        ----------
+        screen_size : tuple
+            A tuple representing the (X, Y) size of the screen
+        target_size : int
+            An int representing the target size to create
+        x : int
+            The x position of the target. If not provided, it will be generated
+            according to the screen size
+        y : int 
+            The y position of the target. If not provided, it will be generated
+            according to the screen size
+        is_moving : bool
+            A bool denoting whether or not the target should be a moving target
+            If not provided, it will be a 50% chance
+        """
+        # Determine whether target should be moving (if it wasn't provided)
         is_moving = is_moving if is_moving is not None else bool(random.randint(0, 1))
 
+        # The types of targets available
         moving_target_type = [
             MovingSquare, 
             MovingTriangle, 
@@ -25,36 +68,84 @@ class TargetMaster:
             StaticCircle
         ]
 
-        chosen_type: Drawable = None
+        chosen_type: Target = None
+
+        # The parameters provided or generated
         params: dict = {
             'x': x or random.randint(target_size, screen_size[0] - target_size),
             'y': y or random.randint(target_size, screen_size[1] - target_size),
             'size': target_size
-        }
+        } 
+
+        # If the target should be moving, choose from the list of moving target types
+        # otherwise, choose a static target type
         if is_moving:
             chosen_type = random.choice(moving_target_type)
         else:
             chosen_type = random.choice(static_target_type)
         
+        # Create and store the target
         created_target = chosen_type(**params)
-
         self.target_list.append(created_target)
 
-    def calculate_target_size(self, score):
+    def calculate_target_size(self, score: int) -> int:
+        """
+        Determines the target size based on the score
+        
+        Should be a number between 10 and 30, with higher sizes being favored for
+        lower scores and vice versa (the higher the score, the harder it is to
+        hit the targets)
+
+        Parameters 
+        ----------
+        score : int
+            The score to calculate the target size based off of
+        
+        Returns
+        -------
+        size : int
+            The size of the target calculated
+        """
         score = max(0, score)
 
         weight = 1/(score + 1)
 
         return int(random.uniform(10, min(30, 30 + weight * 20)))
 
-    def draw_all(self, surface):
+    def draw_all(self, surface: Surface) -> None:
+        """
+        Simply loops through all the targets and draws them to the surface
+        
+        Simply calls the target.draw function on each target
+
+        Parameters
+        ----------
+        surface : pygame.Surface
+            The surface to draw the target to
+        """
         [target.draw(surface) for target in self.target_list]
     
-    def move_all(self, screen_size):
-        [target.move(screen_size) for target in self.target_list if isinstance(target, MovingTarget)]
+    def move_all(self, screen_size: tuple) -> None:
+        """
+        Simply loops through all the targets and moves them based on their velocity
+        
+        Simply calls the target.move function on each target if it's a moving
+        target
+
+        Parameters
+        ----------
+        screen_size : tuple
+            The size of the screen
+        """
+        [
+            target.move(screen_size) 
+            for target in self.target_list 
+            if isinstance(target, MovingTarget)
+        ]
 
 class Target(Drawable, Killable):
-    """A class representing a target
+    """
+    A class representing a target
 
     A target can be hit by projectiles, and can be a circle, triangle, or square.
     Only projectiles of the same shape as the target can deal damage.
@@ -64,7 +155,7 @@ class Target(Drawable, Killable):
     attributes necessary for both a Drawable and Killable object, and an attribute
     for the shape.
     
-    Parameters
+    Attributes
     ----------
     x : int
         The x coordinate of the object
@@ -83,6 +174,8 @@ class Target(Drawable, Killable):
     shape : str
         A string of characters 's', 't', or 'c' denoting whether the object is a
         square, triangle, or circle.
+    bomb_master : BombMaster
+        The controller of all bombs created by this target
     """
 
     def __init__(
@@ -138,7 +231,8 @@ class Target(Drawable, Killable):
         return self.__str__()
 
 class MovingTarget(Moveable, Target):
-    """A class representing a moving target
+    """
+    A class representing a moving target
 
     A target can be hit by projectiles, and can be a circle, triangle, or square.
     Only projectiles of the same shape as the target can deal damage.
@@ -151,7 +245,7 @@ class MovingTarget(Moveable, Target):
 
     MovingTarget simply inherits from the abstract Moveable and the concrete Target
         
-    Parameters
+    Attributes
     ----------
     x : int
         The x coordinate of the object
@@ -204,26 +298,32 @@ class MovingTarget(Moveable, Target):
         Moveable.__init__(self, v_x, v_y)
         Target.__init__(self, x, y, color, size, health, shape)
     
-    def move(self, screen_size):
-        """Changes the x and y position of the object depending on the velocities"""
+    def move(self, screen_size: tuple) -> None:
+        """
+        Changes the x and y position of the object depending on the velocities
+        and delgates to checking if we hit the edge of the screen
+
+        Parameters
+        ----------
+        screen_size : tuple
+            A tuple representing the (X, Y) size of the screen
+        """
         self.x += self.v_x
         self.y += self.v_y
 
         self.check_corners(screen_size)
     
-    def check_corners(self, screen_size) -> None:
+    def check_corners(self, screen_size: tuple) -> None:
         """
-        Implements inelastic rebound when the projectile hits the screen's edge
+        Implements rebound when the target hits the screen's edge
 
         Parameters
         ----------
-        refl_ort : float
-            The coefficient of restitution orthogonal to the surface (default 0.9)
-        refl_par : float
-            The coefficient of restitution parallel to the surface (default 0.8)
+        screen_size : tuple
+            A tuple representing the (X, Y) size of the screen
         """
 
-        # If the projectile hits the left edge of the screen
+        # If the target hits the left edge of the screen
         if self.x < self.size:
             # Make sure we don't go off-screen
             self.x = self.size 
@@ -233,7 +333,7 @@ class MovingTarget(Moveable, Target):
             self.v_x = -int(self.v_x)
             self.v_y = int(self.v_y)
 
-        # If the projectile hits the right edge of the scrteen
+        # If the target hits the right edge of the scrteen
         elif self.x > screen_size[0] - self.size:
             # Make sure we don't go off-screen
             self.x = screen_size[0] - self.size
@@ -243,7 +343,7 @@ class MovingTarget(Moveable, Target):
             self.v_x = -int(self.v_x)
             self.v_y = int(self.v_y)
 
-        # If the projectile hits the top of the screen
+        # If the target hits the top of the screen
         if self.y < self.size:
             # Make sure we don't go off-screen
             self.y = self.size
@@ -253,7 +353,7 @@ class MovingTarget(Moveable, Target):
             self.v_x = int(self.v_x)
             self.v_y = -int(self.v_y)
         
-        # If the projectile hits the bottom of the screen
+        # If the target hits the bottom of the screen
         elif self.y > screen_size[1] - self.size:
             # Make sure we don't go off-screen
             self.y = screen_size[1] - self.size
@@ -276,43 +376,48 @@ class MovingTarget(Moveable, Target):
         return self.__str__()
 
 class MovingSquare(MovingTarget):
-    
-    def __init__(self, *args, **kwargs):
+    """A MovingTarget of shape Square. Refer to `MovingTarget`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs, 
-            shape = 'c')
+            shape = 's')
 
 class MovingTriangle(MovingTarget):
-    def __init__(self, *args, **kwargs):
+    """A MovingTarget of shape Triangle. Refer to `MovingTarget`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs, 
-            shape = 'c')
+            shape = 't')
 
 class MovingCircle(MovingTarget):
-    def __init__(self, *args, **kwargs):
+    """A MovingTarget of shape Circle. Refer to `MovingTarget`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs, 
             shape = 'c')
 
 class StaticSquare(Target):
-    def __init__(self, *args, **kwargs):
+    """A StaticTarget of shape Square. Refer to `Target`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs, 
-            shape = 'c')
+            shape = 's')
 
 class StaticTriangle(Target):
-    def __init__(self, *args, **kwargs):
+    """A StaticTarget of shape Triangle. Refer to `Target`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs, 
-            shape = 'c')
+            shape = 't')
 
 class StaticCircle(Target):
-    def __init__(self, *args, **kwargs):
+    """A StaticTarget of shape Circle. Refer to `Target`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs, 

@@ -3,46 +3,110 @@ from color import Color
 from artist import Artist
 
 import random
-import numpy as np
+from math import cos, sin
 from pygame import Surface
 
 class ProjectileMaster:
+    """
+    Implements methods for cannon-wide projectile checking
 
-    def __init__(self):
+    Introduces methods for creating random projectiles and maintaining existing 
+    projectiles (drawing them and moving them)
+    
+    Attributes
+    ----------
+    projectile_list : list[Target]
+        A list of all the projectiles created by this ProjectileMaster
+    """
+
+    def __init__(self) -> None:
+        """Initializes the empty projectile list"""
         self.projectile_list: list[Projectile] = []
 
-    def create_projectile(self, x, y, vel, angle, chosen_type: str = None):
+    def create_projectile(
+            self, 
+            x: int, 
+            y: int, 
+            vel: int, 
+            angle: int, 
+            chosen_type: str = None) -> None:
+        """
+        Creates a projectile based on the cannon's parameters
 
+        If a type is not provided, a random projectile will be fired.
+
+        Adds the projectile to the projectile list, does not return it
+
+        Parameters
+        ----------
+        x : int
+            The x position of the projectile.
+        y : int 
+            The y position of the projectile.
+        vel : int
+            The velocity of the projectile (determined by the cannon's power)
+        angle : int
+            The angle of the cannon (affects the v_x and v_y distribution)
+        chosen_type : str
+            A string of characters 's', 't', or 'c' denoting whether the object is a
+            square, triangle, or circle. If it is not provided, it will be random
+        """
+        
+        # The possible projectile types and their chosen_type denotion
         projectile_types = {
             'c': CircleProjectile,
             's': SquareProjectile,
             't': TriangleProjectile
         }
 
+        # The params to create the projectile with
         params: dict = {
             'x': x,
             'y': y,
             'size': 20,
-            'v_x': int(vel * np.cos(angle)),
-            'v_y': int(vel * np.sin(angle))
+            'v_x': int(vel * cos(angle)),
+            'v_y': int(vel * sin(angle))
         }
         
+        # A projectile of the chosen type, or a random projectile
         if chosen_type:
             chosen_type = projectile_types[chosen_type]
         else:
             chosen_type = random.choice(list(projectile_types.values()))
 
+
+        # Create and store the projectile
         created_projectile = chosen_type(**params)
-        
         self.projectile_list.append(created_projectile)
 
-    def draw_all(self, surface):
+    def draw_all(self, surface: Surface) -> None:
+        """
+        Simply loops through all the projectiles and draws them to the surface
+        
+        Simply calls the projectiles.draw function on each target
+
+        Parameters
+        ----------
+        surface : pygame.Surface
+            The surface to draw the projectiles to
+        """
         [projectile.draw(surface) for projectile in self.projectile_list]
     
-    def move_all(self, screen_size):
+    def move_all(self, screen_size: tuple) -> None:
+        """
+        Simply loops through all the projectiles and moves them based on their velocity
+        
+        Simply calls the projectile.move function on each projectile
+
+        Parameters
+        ----------
+        screen_size : tuple
+            The size of the screen
+        """
         [projectile.move(screen_size, grav=2) for projectile in self.projectile_list]
     
-    def remove_dead(self):
+    def remove_dead(self) -> None:
+        """Removes dead projectiles from the projectile list"""
         for projectile in self.projectile_list:
             if not projectile.is_alive:
                 self.projectile_list.remove(projectile)
@@ -56,7 +120,7 @@ class Projectile(Drawable, Killable, Moveable):
     A Projectile is Drawable, Killable, and Moveable, meaning it needs
     all the attributes for all of those abstract classes.
         
-    Parameters
+    Attributes
     ----------
     x : int
         The x coordinate of the object
@@ -111,12 +175,15 @@ class Projectile(Drawable, Killable, Moveable):
 
     def move(
             self, 
-            screen_size, time: int = 1, grav: int = 0) -> None:
+            screen_size: tuple, 
+            time: int = 1, grav: int = 0) -> None:
         """
         Moves the projectile based on its velocity and the effect of gravity
 
         Parameters
         ----------
+        screen_size : tuple
+            The size of the screen
         time : int
             The time step multiplier for the velocity (default 1)
         gravity : int
@@ -153,12 +220,15 @@ class Projectile(Drawable, Killable, Moveable):
     
     def check_corners(
             self, 
-            screen_size, refl_ort: float = 0.8, refl_par: float = 0.9) -> None:
+            screen_size: tuple, 
+            refl_ort: float = 0.6, refl_par: float = 0.7) -> None:
         """
         Implements inelastic rebound when the projectile hits the screen's edge
 
         Parameters
         ----------
+        screen_size : tuple
+            The size of the screen
         refl_ort : float
             The coefficient of restitution orthogonal to the surface (default 0.9)
         refl_par : float
@@ -206,33 +276,24 @@ class Projectile(Drawable, Killable, Moveable):
             self.v_y = -int(self.v_y * refl_ort)
 
 class CircleProjectile(Projectile):
-    '''
-    The ball class. Creates a ball, controls it's movement and implement it's rendering.
-    '''
-    def __init__(self, *args, **kwargs):
-        '''
-        Constructor method. Initializes ball's parameters and initial values.
-        '''
+    """A Projectile of shape Circle. Refer to `Projectile`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs,
             shape = 'c')
 
 class SquareProjectile(Projectile):
-    def __init__(self, *args, **kwargs):
-        '''
-        Constructor method. Initializes ball's parameters and initial values.
-        '''
+    """A Projectile of shape Square. Refer to `Projectile`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs,
             shape = 's')
         
 class TriangleProjectile(Projectile):
-    def __init__(self, *args, **kwargs):
-        '''
-        Constructor method. Initializes ball's parameters and initial values.
-        '''
+    """A Projectile of shape Triangle. Refer to `Projectile`"""
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             *args,
             **kwargs,

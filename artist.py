@@ -64,7 +64,8 @@ class Artist:
     @staticmethod
     def draw_cannon(
             surface: pygame.Surface, 
-            x: int, y: int, 
+            x: int, 
+            y: int, 
             angle: int, pow: int, 
             color: tuple) -> None:
         """
@@ -104,6 +105,9 @@ class Artist:
         
         gun_pos = np.array([x, y])
         
+        # Determine the gun's shape (a polygon needs a list of points)
+        # Even though this will come out as a rectangle, we just get its list
+        # of points as a polygon and draw that
         gun_shape = []
         gun_shape.append(
             (gun_pos + vec_1).tolist()
@@ -124,8 +128,11 @@ class Artist:
     def draw_score(
             surface: pygame.Surface, 
             font: pygame.font.Font, 
-            targets_destroyed: int, projectiles_used: int, score: int, 
-            primary_color: tuple, secondary_color: tuple) -> None:
+            targets_destroyed: int, 
+            projectiles_used: int, 
+            score: int, 
+            primary_color: tuple, 
+            secondary_color: tuple) -> None:
         """
         Draws the score table based on its parameters
 
@@ -148,26 +155,31 @@ class Artist:
             The color to use for the statistics
         secondary_color : tuple
             The color to use for the statistics
-
         """
         score_surf = []
         
+        # The text for targets_destroyed
         score_surf.append(
             font.render(
             "Destroyed: {}".format(targets_destroyed), 
             True, 
             secondary_color)
         )
+
+        # The text for projectiles_used
         score_surf.append(
             font.render("Balls used: {}".format(projectiles_used), 
             True, 
             secondary_color)
         )
+
+        # The text for the total score
         score_surf.append(
             font.render("Total: {}".format(score), 
             True, 
             primary_color)
         )
 
+        # Place each text piece to the screen
         for i in range(3):
             surface.blit(score_surf[i], [10, 10 + 30*i])
