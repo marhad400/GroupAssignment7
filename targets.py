@@ -11,7 +11,7 @@ class TargetMaster:
     def __init__(self):
         self.target_list: list[Target] = []
 
-    def create_random_target(self, screen_size, target_size, is_moving: bool = None):
+    def create_random_target(self, screen_size, target_size, x = None, y = None, is_moving: bool = None):
         is_moving = is_moving if is_moving is not None else bool(random.randint(0, 1))
 
         moving_target_type = [
@@ -27,8 +27,8 @@ class TargetMaster:
 
         chosen_type: Drawable = None
         params: dict = {
-            'x': random.randint(target_size, screen_size[0] - target_size),
-            'y': random.randint(target_size, screen_size[1] - target_size),
+            'x': x or random.randint(target_size, screen_size[0] - target_size),
+            'y': y or random.randint(target_size, screen_size[1] - target_size),
             'size': target_size
         }
         if is_moving:
@@ -42,8 +42,11 @@ class TargetMaster:
 
     def calculate_target_size(self, score):
         score = max(0, score)
-        lower = max(1, 30 - 2 * score)
+        lower = max(10, 30 - 2 * score)
         upper = 30 - score
+
+        if upper < lower:
+            upper, lower = lower, upper
 
         return random.randint(lower, upper)
 

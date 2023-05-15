@@ -3,7 +3,9 @@ from color import Color
 from abstract import Moveable, Drawable, Killable
 from artist import Artist
 from projectiles import ProjectileMaster
+from targets import TargetMaster
 
+import random
 import time
 import threading
 
@@ -151,3 +153,17 @@ class ArtificialCannon(MovingCannon):
         
     def end_thread(self):
         self.strike_thread = None
+    
+    def determine_target_spawning(
+            self, target_master: TargetMaster, screen_size, score, chance: float = 0):
+        
+        if self.strike_thread or random.random() > chance:
+            return
+    
+        target_master.create_random_target(
+                screen_size,
+                target_master.calculate_target_size(score),
+                self.x,
+                self.y
+            )
+

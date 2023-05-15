@@ -134,6 +134,10 @@ class Manager:
             self.artificial_cannon.end_thread()
         else:
             self.artificial_cannon.start_thread()
+        
+        self.artificial_cannon.determine_target_spawning(
+            self.target_master, self.screen_size, self.score_t.score, 0.05
+            )
 
     def handle_target_movement(self):
         self.target_master.move_all(self.screen_size)
@@ -239,7 +243,7 @@ class Manager:
                     time.sleep(0.1)
                     
                     target.bomb_master.create_bomb(
-                        target.x, target.y + target.size, 5, 0.80
+                        target.x, target.y + target.size, 5, 0.8
                     )
 
         
