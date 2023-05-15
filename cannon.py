@@ -71,7 +71,7 @@ class Cannon(Drawable, Killable):
 
 class MovingCannon(Moveable, Cannon):
     
-    def __init__(self, v_x=6, v_y=6, *args, **kwargs):
+    def __init__(self, v_x=7, v_y=7, *args, **kwargs):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''

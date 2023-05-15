@@ -42,13 +42,10 @@ class TargetMaster:
 
     def calculate_target_size(self, score):
         score = max(0, score)
-        lower = max(10, 30 - 2 * score)
-        upper = 30 - score
 
-        if upper < lower:
-            upper, lower = lower, upper
+        weight = 1/(score + 1)
 
-        return random.randint(lower, upper)
+        return int(random.uniform(10, min(30, 30 + weight * 20)))
 
     def draw_all(self, surface):
         [target.draw(surface) for target in self.target_list]

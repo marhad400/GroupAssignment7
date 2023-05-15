@@ -63,10 +63,16 @@ class Manager:
             color = Color.LIGHT_BLUE
         )
 
-        self.artificial_cannon = ArtificialCannon(
-            x = self.screen_size[0] - 30, y = self.screen_size[1]//2,
+        self.artificial_cannons: list[ArtificialCannon] = []
+
+        for _ in range(3):
+            self.artificial_cannons.append(ArtificialCannon(
+            x = random.randint(self.screen_size[0]//2, self.screen_size[0] - 30), 
+            y = random.randint(0, self.screen_size[1]),
+            v_x = random.randint(2, 5),
+            v_y = random.randint(2, 5),
             color = Color.RED
-        )
+        ))
 
         self.target_master = TargetMaster()
 
@@ -98,7 +104,8 @@ class Manager:
             mouse_pos = pygame.mouse.get_pos()
             self.user_cannon.set_angle(mouse_pos)
         
-        self.artificial_cannon.set_angle((self.user_cannon.x, self.user_cannon.y))
+        for artificial_cannon in self.artificial_cannons:
+            artificial_cannon.set_angle((self.user_cannon.x, self.user_cannon.y))
 
     def handle_cannon_movement(self):
         key_to_move = {
@@ -130,26 +137,30 @@ class Manager:
         
         self.user_cannon.gain()
 
-        if self.artificial_cannon.determine_move(self.user_cannon, self.screen_size):
-            self.artificial_cannon.end_thread()
-        else:
-            self.artificial_cannon.start_thread()
+        for artificial_cannon in self.artificial_cannons:
+            if artificial_cannon.determine_move(self.user_cannon, self.screen_size):
+                artificial_cannon.end_thread()
+            else:
+                artificial_cannon.start_thread()
         
-        self.artificial_cannon.determine_target_spawning(
-            self.target_master, self.screen_size, self.score_t.score, 0.05
-            )
+            artificial_cannon.determine_target_spawning(
+                self.target_master, self.screen_size, self.score_t.score, 0.01
+                )
 
     def handle_target_movement(self):
         self.target_master.move_all(self.screen_size)
 
     def handle_projectile_movement(self):
         self.user_cannon.projectile_master.move_all(self.screen_size)
-        self.artificial_cannon.projectile_master.move_all(self.screen_size)
+        
+        for artificial_cannon in self.artificial_cannons:
+            artificial_cannon.projectile_master.move_all(self.screen_size)
 
 
     def handle_dead_projectiles(self):
         self.user_cannon.projectile_master.remove_dead()
-        self.artificial_cannon.projectile_master.remove_dead()
+        for artificial_cannon in self.artificial_cannons:
+            artificial_cannon.projectile_master.remove_dead()
 
     def handle_bomb_movement(self):
         for target in self.target_master.target_list:
@@ -171,9 +182,10 @@ class Manager:
                     self.score_t.targets_destroyed += 1
                 
     def handle_user_collision(self):
-        for projectile in self.artificial_cannon.projectile_master.projectile_list:
-            if self.user_cannon.check_collision(projectile):
-                self.user_cannon.deal()
+        for artificial_cannon in self.artificial_cannons:
+            for projectile in artificial_cannon.projectile_master.projectile_list:
+                if self.user_cannon.check_collision(projectile):
+                    self.user_cannon.deal()
 
     def handle_drawing(self):
         self.draw_projectiles()
@@ -184,14 +196,16 @@ class Manager:
 
     def draw_projectiles(self):
         self.user_cannon.projectile_master.draw_all(self.screen)
-        self.artificial_cannon.projectile_master.draw_all(self.screen)
+        for artificial_cannon in self.artificial_cannons:
+            artificial_cannon.projectile_master.draw_all(self.screen)
 
     def draw_targets(self):
         self.target_master.draw_all(self.screen)
 
     def draw_cannons(self):
         self.user_cannon.draw(self.screen)
-        self.artificial_cannon.draw(self.screen)
+        for artificial_cannon in self.artificial_cannons:
+            artificial_cannon.draw(self.screen)
 
     def draw_bombs(self):
         for target in self.target_master.target_list:
@@ -246,7 +260,6 @@ class Manager:
                         target.x, target.y + target.size, 5, 0.8
                     )
 
-        
     def end_bomb_thread(self):
         self.bomb_spawning_thread = None
 
