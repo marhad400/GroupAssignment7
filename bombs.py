@@ -225,6 +225,8 @@ class Bomb(Drawable, Killable, Moveable):
         ----------
         screen_y : int
             The y position of the bottom of the screen
+        user : Drawable
+            A Drawable object that is the user cannon
         """
         at_bottom = self.check_bottom(screen_y)
         at_user = self.check_user(user)

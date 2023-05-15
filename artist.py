@@ -229,7 +229,12 @@ class Artist:
         surface.blit(score_surf[-1], [surface.get_size()[1] - 50, 40])
     
     @staticmethod
-    def draw_death_screen(surface: pygame.Surface, font: pygame.font.Font, game_over_text: str, score: int, color: tuple) -> None:
+    def draw_death_screen(
+            surface: pygame.Surface, 
+            font: pygame.font.Font, 
+            game_over_text: str, 
+            score: int, 
+            color: tuple) -> None:
         """
         Draws the death screen when the user dies
         
@@ -239,23 +244,32 @@ class Artist:
             The surface to draw the death screen over
         font : pygame.font.Font
             The font to use for the text
+        game_over_text : str
+            The text to display
         score : int
             The player's score before they died
+        color : tuple
+            The color to set the text and score
         """
+        # Initialize a new screen
         death_screen = pygame.Surface(surface.get_size())
-
         death_screen.fill(Color.BLACK)
-
+        
+        # Game over text
         game_over_surface = font.render(
                                         game_over_text, 
                                         True, 
                                         color
                                     )
+        
+        # Final score text
         score_surface = font.render(
                                         f"Final Score: {score}", 
                                         True, 
                                         color
                                     )
+        
+        # Instructions to exit
         to_exit = font.render(
                                 "Press any key to exit",
                                 True,
@@ -279,6 +293,7 @@ class Artist:
                 ) 
             )
 
+        # Put text on death screen
         death_screen.blit(
             text_piece[-1], 
             (
@@ -287,4 +302,5 @@ class Artist:
             )
         )
 
+        # Put death screen on main screen
         surface.blit(death_screen, (0, 0))

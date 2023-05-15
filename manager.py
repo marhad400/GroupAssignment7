@@ -89,6 +89,8 @@ class ScoreTable:
         ----------
         surface : pygame.Surface
             The surface to draw the game over screen onto
+        game_over_text : str
+            The text to display (Either "You Lose" or "You Win", for example)
         """
         Artist.draw_death_screen(
             surface, 
@@ -355,9 +357,13 @@ class Manager:
             for projectile in self.user_cannon.projectile_master.projectile_list:
                 
                 if artificial_cannon.check_collision(projectile):
+                    # If a projectile hits an enemy cannon, don't count it
+                    self.score_t.projectiles_used -= 1
                     artificial_cannon.deal()
                     
                     if not artificial_cannon.is_alive:
+                        # ac counts as 5 targets
+                        self.score_t.targets_destroyed += 5
                         self.artificial_cannons.remove(artificial_cannon)    
                     
                     self.user_cannon.projectile_master.projectile_list.remove(projectile)
@@ -493,23 +499,38 @@ class Manager:
         
         self.game_over_loop()
 
-    def check_game_over(self):
+    def check_game_over(self) -> None:
+        """Check if the game should be over and set self.done respectively"""
         if not self.user_cannon.is_alive or self.check_ac_death():
             self.done = True
 
-    def check_ac_death(self):
+    def check_ac_death(self) -> bool:
+        """
+        Check if all the artificial cannons are dead
+        
+        Returns
+        -------
+        ac_death : bool
+            Whether or not all the artificial tanks are dead
+        """
         return all([not ac.is_alive for ac in self.artificial_cannons])
 
-    def game_over_loop(self):
+    def game_over_loop(self) -> None:
+        """Continuously the game over screen"""
+
         show_game_over = True
         while show_game_over:
-
+            
+            # If the user died, display You Died
             if not self.user_cannon.is_alive:
                 self.score_t.draw_game_over_screen(self.screen, "You Died!")
-
-            if self.check_ac_death():
+            # If the user won, display You Won
+            elif self.check_ac_death():
                 self.score_t.draw_game_over_screen(self.screen, "You Won!")
+            else:
+                show_game_over = False
 
+            # Check for key press to exit
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     show_game_over = False
