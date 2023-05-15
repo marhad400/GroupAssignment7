@@ -239,7 +239,7 @@ class Manager:
                     time.sleep(0.1)
                     
                     target.bomb_master.create_bomb(
-                        target.x, target.y + target.size, 5, 1
+                        target.x, target.y + target.size, 5, 0.80
                     )
 
         
