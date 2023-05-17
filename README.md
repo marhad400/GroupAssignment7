@@ -35,3 +35,7 @@ Defines a Projectile class that inherits Drawable, Killable, and Moveable. The p
 Defines a Cannon class that inherits Drawable and Killable, MovingCannon that inherits Moveable and Cannon, and ArtificialCannon that inherits MovingCannon. Cannon has constructor atrributes power, angle, and choosing the type of projectile it is shooting using an imported ProjectileMaster. Cannon has various functions to use these attributes such as change_chosen(), gain(), and set_angle(). MovingCannon implements a move() function, and ArtificialCannon implements move() from MovingCannon, and has additional functions to determine its movement and shooting capabilities. Additionally, ArtificialCannon implements an imported TargetMaster used in a determine_target_spawning() function to spawn targets played against the user.
 
 ### manager.py
+manager.py first has a ScoreTable class, that draws the score property determined by the number of targets destroyed - the number of projectiles used. ScoreTable also draws the game over screen that displays after the user loses enough health to die. The main portion of the file is the Manager class, which initializes and handles all of the objects for the game such as the cannons, projectiles, targets, bombs, and screen. Manager has classes for initializing pygame, updating the display, handling all of the drawing and movement of the objects, collision, and running the main game loop.
+
+### main.py
+Imports a Manager object to call the main game loop and run the game.
