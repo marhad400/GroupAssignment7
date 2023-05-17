@@ -39,3 +39,6 @@ manager.py first has a ScoreTable class, that draws the score property determine
 
 ### main.py
 Imports a Manager object to call the main game loop and run the game.
+
+# Credits
+Project created by George Matta, Mark Haddad, and Ayanna Sanges-Chu for CS2520 Group Assignment
